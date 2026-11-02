@@ -1,7 +1,7 @@
-# HU-001-Registrar Libro fisico
+# HU-002-Registrar Libro fisico
 
 ## Historia de usuario
-como administrador de biblioteca, quiero digitalizar la sinopsis y indice del libro, para tener una mejor contextualizacion para la busqueda inteligente.
+como administrador de biblioteca, quiero registrar un nuevo libro con titulo, autor, descripcion, para tener un registro exacto de los ejemplares.
 
 ## Criterio de aceptación 
 ### CA-001-
@@ -36,3 +36,4 @@ RN-007:
 ## Fuera de Alcance
 * 
 * 
+

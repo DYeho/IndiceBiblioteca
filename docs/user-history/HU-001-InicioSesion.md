@@ -1,7 +1,7 @@
-# HU-001-Registrar Libro fisico
+# HU-002-Registrar Libro fisico
 
 ## Historia de usuario
-como administrador de biblioteca y usuario, quiero buscar el libro por nombre o autor, para encontrar ejemplares exactos mas rapido.
+como administrador de biblioteca, quiero iniciar sesion en el sistema, para que me reconosca como administrador y me permita acceder a las capacidades especializadas para anministradores.
 
 ## Criterio de aceptación 
 ### CA-001-

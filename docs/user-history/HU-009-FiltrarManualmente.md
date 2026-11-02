@@ -1,7 +1,7 @@
-# HU-001-Registrar Libro fisico
+# HU-009-Filtrar Lista de libros
 
 ## Historia de usuario
-como administrador de biblioteca y usuario, quiero encontrar el estante donde se almacena el libro que busco, para encontrar ejemplares exactos mas rapido.
+como administrador de biblioteca y usuario, quiero describir el libro que busco, para obtener una lista de los ejemplares filtrados por IA.
 
 ## Criterio de aceptación 
 ### CA-001-

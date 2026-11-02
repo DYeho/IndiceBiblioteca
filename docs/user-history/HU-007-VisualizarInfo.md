@@ -1,4 +1,4 @@
-# HU-001-Registrar Libro fisico
+# HU-008-Visualizar informacion
 
 ## Historia de usuario
 como administrador de biblioteca y usuario, quiero ver la informacion detallada de un libro, para corroborar el contenido de este mismo.

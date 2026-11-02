@@ -1,4 +1,4 @@
-# HU-001-Registrar Libro fisico
+# HU-003-Organizar libros por estante
 
 ## Historia de usuario
 como administrador de biblioteca, quiero asignar la etiqueta de X libro para el estante de mi eleccion, para tener una organizacion precisa.

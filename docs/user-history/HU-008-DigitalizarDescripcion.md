@@ -1,7 +1,7 @@
-# HU-001-Registrar Libro fisico
+# HU-009-Digitalizar descripcion, sinopsis e indice 
 
 ## Historia de usuario
-como administrador de biblioteca y usuario, quiero describir el libro que busco, para obtener una lista de los ejemplares filtrados por IA.
+como administrador de biblioteca, quiero digitalizar la sinopsis y indice del libro, para tener una mejor contextualizacion para la busqueda inteligente.
 
 ## Criterio de aceptación 
 ### CA-001-

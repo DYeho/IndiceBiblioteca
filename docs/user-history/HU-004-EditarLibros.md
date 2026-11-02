@@ -1,7 +1,7 @@
-# HU-001-Registrar Libro fisico
+# HU-004-Editar Libros registrados
 
 ## Historia de usuario
-como administrador de biblioteca, quiero registrar un nuevo libro con titulo, autor, descripcion, para tener un registro exacto de los ejemplares.
+como administrador de biblioteca, quiero poder editar el nombre, autor, descripcion y cantidad de un libro ya registrado, para poder corregir errores de registro o actualizaciones de estos mismos.
 
 ## Criterio de aceptación 
 ### CA-001-
@@ -36,4 +36,3 @@ RN-007:
 ## Fuera de Alcance
 * 
 * 
-
