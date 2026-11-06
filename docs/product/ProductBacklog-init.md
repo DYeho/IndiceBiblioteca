@@ -12,6 +12,6 @@
 | 6 | **Buscar libro por nombre o autor** (cada resultado muestra título, autor, estante y marca "agotado" si aplica) | Esencial para MVP | ✅ | ✅ | Permite localizar un título y llegar a su estante en una sola acción. |
 | 7 | **Ver información y detalles del libro** (incluye estante, cantidad y estado "agotado" si es 0) | Esencial para MVP | ✅ | ✅ | Confirma que es el libro buscado y cuántos ejemplares hay antes de ir al estante. |
 | 8 | **Digitalizar descripción, sinopsis e índice** (escaneo y extracción de texto) | Posterior | ✅ | ❌ | Enriquece el detalle del libro, pero el catálogo ya es útil sin esto. |
-| 9 | **Filtrar lista de libros manualmente o con un modelo de IA** | Posterior | ✅ | ✅ | Agiliza la exploración cuando el catálogo crece. |
+| 9 | **Filtrar lista de libros describiendo el libro buscado, con un modelo de IA** | Posterior | ✅ | ✅ | Agiliza la exploración cuando el catálogo crece. |
 
 
