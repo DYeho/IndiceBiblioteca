@@ -1,0 +1,22 @@
+/* ==========================================================================
+   admin.css
+   Estilos propios del área de Administración (admin/index.html).
+   Solo lo que no es reutilizable: lo común vive en base.css, layout.css
+   y components.css. Usa únicamente tokens (var(--...)).
+   ========================================================================== */
+
+/* 1. Barra superior del catálogo: título y botón "Registrar libro" -------- */
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;  
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+/* 2. Fila de acciones del formulario: Guardar y Cancelar ------------------ */
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

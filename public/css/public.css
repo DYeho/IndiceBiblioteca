@@ -1,0 +1,33 @@
+/* ==========================================================================
+   public.css
+   Estilos propios del área de Estudiantes (index.html y login.html).
+   Solo lo que no es reutilizable: lo común vive en base.css, layout.css
+   y components.css. Usa únicamente tokens (var(--...)).
+   ========================================================================== */
+
+/* 1. Introducción sobre el buscador -------------------------------------- */
+.page-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.page-intro p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+}
+
+/* 2. Resumen de resultados ("4 resultados") ------------------------------- */
+.results-summary {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+/* 3. Página de inicio de sesión ------------------------------------------- */
+/* Estrecha y centra el bloque del login dentro de .container. */
+.login-main {
+  width: 100%;
+  max-width: 26rem;
+  margin-inline: auto;
+}

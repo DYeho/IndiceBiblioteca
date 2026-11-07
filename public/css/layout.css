@@ -1,0 +1,110 @@
+/* ==========================================================================
+   layout.css
+   Estructura de página: contenedor, header / main / footer, cuadrícula de
+   resultados y reglas responsivas (SPEC-000 §9.3).
+   Mobile-first. Puntos de quiebre literales: 600px y 900px
+   (las variables CSS no funcionan dentro de @media).
+   Solo estructura: los colores y el aspecto de los componentes van en
+   base.css y components.css.
+   ========================================================================== */
+
+/* 1. Estructura general de la página ------------------------------------- */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.site-main {
+  flex: 1 0 auto;
+  padding-block: var(--space-4);
+}
+
+/* 2. Contenedor ----------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-3);
+}
+
+/* 3. Encabezado y pie ----------------------------------------------------- */
+.site-header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  padding-block: var(--space-3);
+}
+
+.site-footer {
+  flex-shrink: 0;
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* 4. Pila vertical de bloques --------------------------------------------- */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* 5. Búsqueda: resultados y panel de detalle ------------------------------ */
+/* En móvil, el panel de detalle queda bajo los resultados, a ancho completo. */
+.search-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.search-results {
+  min-width: 0;
+}
+
+.detail-region {
+  min-width: 0;
+}
+
+/* 6. Cuadrícula de resultados --------------------------------------------- */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-3);
+}
+
+/* 7. Responsivo ----------------------------------------------------------- */
+@media (min-width: 600px) {
+  .container {
+    padding-inline: var(--space-4);
+  }
+
+  .site-main {
+    padding-block: var(--space-5);
+  }
+
+}
+
+@media (min-width: 900px) {
+  /* El panel de detalle pasa a columna lateral. Si está oculto
+     (atributo hidden), los resultados ocupan todo el ancho. */
+  .search-layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .search-results {
+    flex: 1 1 0;
+  }
+
+  .detail-region {
+    flex: 0 0 22rem;
+  }
+}

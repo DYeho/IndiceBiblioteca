@@ -66,11 +66,11 @@ RN-007: La información se presenta en un panel sobre la página de búsqueda, s
 * HU-001-Inicio de sesión (necesaria para la página de búsqueda del administrador).
 * HU-003-Organizar libros por estante: provee el estante que se muestra.
 * HU-004-Editar Libros registrados: provee la descripción vigente, y "Editar" se ofrece desde el mismo punto de entrada. HU-005-Eliminar libro hace lo mismo con "Eliminar".
-* Capacidad 8 del backlog (digitalización): es el origen de la sinopsis y el índice. No está especificada, y no existe en el MVP ninguna forma de cargarlos.
+* HU-008-Digitalizar sinopsis e índice: es el origen de la sinopsis y el índice. Es posterior al MVP, y hasta entonces no existe ninguna forma de cargarlos.
 * Tabla `books` en SQLite: SPEC-001-modelo-de-datos debe reservar campos opcionales para sinopsis e índice, aunque su carga llegue después.
 
 ## Fuera de Alcance
-* Digitalizar, escanear, extraer, escribir o editar la sinopsis y el índice (capacidad 8).
+* Digitalizar, escanear, extraer, escribir o editar la sinopsis y el índice (HU-008).
 * Página propia de detalle por libro y enlaces directos para compartir un libro.
 * Fechas de registro o modificación, historial de cambios o identificadores internos.
 * Imágenes o portada del libro.
