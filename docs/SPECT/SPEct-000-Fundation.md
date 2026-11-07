@@ -3,7 +3,7 @@
 **Proyecto:** Índice Biblioteca  
 **Tipo:** Especificación fundacional  
 **Versión:** 2.1  
-**Estado:** Borrador para aprobación  
+**Estado:** Aprobado  
 **Fecha:** 06/11/2026  
 
 ## 1. Propósito
@@ -668,7 +668,7 @@ Todas las páginas (`index.html`, `login.html`, `admin/index.html`) comparten es
 - Enlace «Saltar al contenido» como primer elemento de `<body>`.
 - Regiones semánticas: `<header>`, `<main id="contenido">` y `<footer>`.
 - Un único `<script type="module">` con `src` al módulo de entrada del área (`public/js/public/main.js` o `public/js/admin/main.js`; en `login.html`, `public/js/admin/auth.js`).
-- Las rutas de recursos son absolutas desde la raíz (por ejemplo, `/css/base.css`) para que funcionen también desde `/admin/`.
+- - Las rutas de recursos y los enlaces entre páginas son **relativas** (`./css/base.css` en `public/`; `../css/base.css` en `public/admin/`), de modo que las páginas funcionen tanto con Express como con un servidor estático abierto desde la raíz del proyecto durante el desarrollo.
 
 ### 9.5. Módulos JavaScript compartidos
 
