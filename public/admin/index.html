@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Índice Biblioteca · Administración</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <p><strong>Índice Biblioteca · Administración</strong></p>
+      <nav aria-label="Sesión">
+        <button class="button button-secondary" type="button">Cerrar sesión</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main" id="contenido">
+    <div class="container stack">
+
+      <div class="admin-toolbar">
+        <h1>Catálogo</h1>
+        <button class="button button-primary" type="button">+ Registrar libro</button>
+      </div>
+
+      <form class="form-field" role="search">
+        <label class="form-label" for="search-input">Buscar por título o autor</label>
+        <div class="search-form">
+          <input
+            class="form-input search-input"
+            id="search-input"
+            name="q"
+            type="search"
+            autocomplete="off"
+          >
+          <button class="button button-primary" type="submit">Buscar</button>
+        </div>
+      </form>
+
+      <div class="search-layout">
+
+        <section class="search-results stack" aria-label="Resultados de búsqueda">
+          <p class="results-summary" role="status" aria-live="polite">4 resultados</p>
+
+          <ul class="results-grid">
+            <li>
+              <button class="book-card" type="button" aria-current="true">
+                <span class="book-card-title">Cien años de soledad</span>
+                <span class="book-card-author">Gabriel García Márquez</span>
+                <span class="book-card-shelf">Estante A-3</span>
+              </button>
+            </li>
+            <li>
+              <button class="book-card" type="button">
+                <span class="book-card-title">El principito</span>
+                <span class="book-card-author">Antoine de Saint-Exupéry</span>
+                <span class="book-card-shelf">Estante B-1</span>
+                <span class="badge-out-of-stock">Agotado</span>
+              </button>
+            </li>
+            <li>
+              <button class="book-card" type="button">
+                <span class="book-card-title">Don Quijote de la Mancha</span>
+                <span class="book-card-author">Miguel de Cervantes Saavedra</span>
+                <span class="book-card-author">Sin estante asignado</span>
+              </button>
+            </li>
+            <li>
+              <button class="book-card" type="button">
+                <span class="book-card-title">Rayuela</span>
+                <span class="book-card-author">Julio Cortázar</span>
+                <span class="book-card-shelf">Estante C-2</span>
+              </button>
+            </li>
+          </ul>
+        </section>
+
+        <aside class="detail-region" aria-label="Edición del libro">
+          <div class="detail-panel">
+            <div class="detail-header">
+              <h2 class="detail-title">Editar libro</h2>
+            </div>
+
+            <form class="stack" method="post">
+              <div class="form-field">
+                <label class="form-label" for="book-title">Título</label>
+                <input
+                  class="form-input"
+                  id="book-title"
+                  name="title"
+                  type="text"
+                  maxlength="200"
+                  value="Cien años de soledad"
+                  required
+                >
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="book-author">Autor</label>
+                <input
+                  class="form-input"
+                  id="book-author"
+                  name="author"
+                  type="text"
+                  maxlength="150"
+                  value="Gabriel García Márquez"
+                  required
+                >
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="book-shelf">Estante (opcional)</label>
+                <input
+                  class="form-input"
+                  id="book-shelf"
+                  name="shelf_label"
+                  type="text"
+                  maxlength="30"
+                  value="A-3"
+                >
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="book-quantity">Cantidad de ejemplares</label>
+                <input
+                  class="form-input"
+                  id="book-quantity"
+                  name="quantity"
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  max="999"
+                  step="1"
+                  value="3"
+                  required
+                >
+              </div>
+
+              <div class="form-actions">
+                <button class="button button-primary" type="submit">Guardar</button>
+                <button class="button button-secondary" type="button">Cancelar</button>
+              </div>
+            </form>
+
+            <div class="detail-actions">
+              <button class="button button-danger" type="button">Eliminar libro</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Catálogo de la biblioteca estudiantil</p>
+    </div>
+  </footer>
+</body>
+</html>

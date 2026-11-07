@@ -2,12 +2,9 @@
 
 **Proyecto:** Índice Biblioteca  
 **Tipo:** Especificación fundacional  
-**Versión:** 2.0  
+**Versión:** 2.1  
 **Estado:** Borrador para aprobación  
-**Fecha:** 05/11/2026  
-**Ruta del archivo:** `docs/specifications/SPEC-000-foundation.md`
-
----
+**Fecha:** 06/11/2026  
 
 ## 1. Propósito
 
@@ -47,7 +44,9 @@ Frontend y backend se comunican mediante una **API REST** sobre HTTP, con interc
 | **Administración** | Inicio de sesión obligatorio. Existen varias cuentas. | Operaciones de modificación del catálogo y consulta. |
 | **Estudiante** | Ninguna. No existe cuenta. | Solo consulta pública del catálogo. |
 
-Las cuentas de Administración se crean mediante un **procedimiento técnico manual**, fuera de la aplicación. La aplicación no incluye registro de cuentas.
+Las cuentas de Administración se crean mediante un **procedimiento técnico manual**, fuera de la aplicación, ejecutado con un script de línea de comandos ubicado en `scripts/` (ver §3). La aplicación no incluye registro de cuentas.
+
+**Protección de la página de Administración:** `public/admin/index.html` no debe servirse a visitantes sin sesión. El backend protege la ruta `/admin/` **antes** del middleware de archivos estáticos y redirige a `/login.html` cuando no hay sesión válida. La protección de la API (§4.4) es independiente y siempre obligatoria.
 
 ### 2.3. Disponibilidad y despliegue (criterios, no implementación)
 
@@ -60,8 +59,9 @@ La configuración concreta del servidor queda fuera de esta especificación (ver
 ### 2.4. Persistencia
 
 - Se usa **SQLite** como base de datos relacional.
-- El archivo de base de datos reside en el servidor institucional, dentro de `data/`.
-- Solo el backend puede consultar o modificar la base de datos.
+- El archivo de base de datos del catálogo reside en el servidor institucional, dentro de `data/`.
+- Las sesiones se almacenan en un **archivo SQLite separado**, también dentro de `data/` (ver §4.2 y §4.11).
+- Solo el backend puede consultar o modificar las bases de datos.
 
 ### 2.5. Decisiones de producto que esta especificación respeta
 
@@ -70,10 +70,11 @@ Provienen del Product Goal y del Product Backlog y condicionan el diseño técni
 - El estante es una **etiqueta** asignada al libro, no una entidad con gestión propia.
 - La cantidad de ejemplares es un **valor que la Administración ajusta manualmente**. No hay préstamos ni devoluciones.
 - Las capacidades *Posteriores* del backlog (digitalización y filtrado con IA) no forman parte del MVP.
+- Las decisiones de producto transversales confirmadas se registran en la sección 10.
 
 ## 3. Estructura inicial del proyecto
 
-La estructura de directorios definida en la versión 1.0 **se mantiene sin cambios**.
+La estructura de la versión 2.0 se mantiene, con **una adición**: el directorio `scripts/` (marcado con `← nuevo en v2.1`).
 
 ```text
 indice-biblioteca/
@@ -143,6 +144,10 @@ indice-biblioteca/
 │   └── utils/
 │       └── errors.js
 │
+├── scripts/                      ← nuevo en v2.1
+│   ├── init-db.js
+│   └── create-admin.js
+│
 ├── tests/
 │   ├── auth/
 │   └── books/
@@ -160,14 +165,16 @@ indice-biblioteca/
 └── README.md
 ```
 
-**Nota sobre archivos de la raíz:** `.env` existe solo en cada entorno y **no se versiona** (debe figurar en `.gitignore`). Lo que se versiona es `.env.example`, con los nombres de las variables y sin valores sensibles. De igual forma, `data/` se versiona únicamente por su `.gitkeep`; el archivo de base de datos nunca.
+**Nota sobre archivos de la raíz:** `.env` existe solo en cada entorno y **no se versiona** (debe figurar en `.gitignore`). Lo que se versiona es `.env.example`, con los nombres de las variables y sin valores sensibles. De igual forma, `data/` se versiona únicamente por su `.gitkeep`; los archivos de base de datos y de sesiones nunca.
+
+**Nota sobre archivos adicionales:** otras utilidades del backend (por ejemplo, la normalización de texto de §10) se ubican en `src/utils/` sin modificar la estructura. Cualquier otro directorio nuevo exige actualizar esta especificación.
 
 ### 3.1. Responsabilidades de los directorios
 
 | Directorio | Responsabilidad |
 |---|---|
 | `public/` | Archivos estáticos servidos al navegador (HTML, CSS, JS, recursos). |
-| `public/admin/` | Página de la Administración. |
+| `public/admin/` | Página de la Administración (protegida, ver §2.2). |
 | `public/css/` | Hojas de estilo. |
 | `public/js/public/` | Módulos del área de Estudiantes. |
 | `public/js/admin/` | Módulos del área de Administración. |
@@ -179,9 +186,10 @@ indice-biblioteca/
 | `src/middleware/` | Autenticación, validación y manejo de errores. |
 | `src/modules/` | Módulos funcionales del backend (`auth`, `books`). |
 | `src/utils/` | Utilidades compartidas del backend. |
+| `scripts/` | Scripts de línea de comandos para operación técnica (inicializar la base de datos, crear cuentas de Administración). No se exponen por HTTP. |
 | `tests/` | Pruebas automatizadas, organizadas por módulo. |
 | `docs/specifications/` | Especificaciones del proyecto. |
-| `data/` | Almacenamiento privado de la base de datos. No es público. |
+| `data/` | Almacenamiento privado de las bases de datos. No es público. |
 
 ### 3.2. Organización interna del backend
 
@@ -203,12 +211,12 @@ El flujo de dependencia es unidireccional: routes → controller → service →
 - Los archivos **JavaScript** definen la interacción.
 - El código se separa por área de uso: `public/` (Estudiantes), `admin/` (Administración) y `shared/` (compartido).
 - Toda comunicación con el backend pasa por un único módulo compartido, `public/js/shared/api.js`.
+- `login.html` usa las hojas `base.css`, `layout.css`, `components.css` y `public.css`, y su lógica vive en `public/js/admin/auth.js`.
+- La base de interfaz común (tokens, plantilla HTML y componentes) se define en la sección 9.
 
 ## 4. Restricciones técnicas
 
 ### 4.1. Tecnologías obligatorias
-
-Las tecnologías de la versión 1.0 **se mantienen sin cambios**.
 
 | Tecnología | Uso |
 |---|---|
@@ -218,14 +226,21 @@ Las tecnologías de la versión 1.0 **se mantienen sin cambios**.
 | Node.js (LTS) | Entorno de ejecución del backend. |
 | Express | Servidor HTTP y API REST. |
 | SQLite | Base de datos relacional. |
-| better-sqlite3 | Acceso a SQLite desde Node.js. |
+| better-sqlite3 | Acceso a SQLite desde Node.js para el catálogo y las cuentas. |
 | Nginx | Proxy inverso y terminación HTTPS. |
 | Git | Control de versiones. |
 | npm | Gestión de dependencias. |
 | VSCode | Entorno de desarrollo. |
+
+**Tecnologías anticipadas para capacidades Posteriores (no forman parte del MVP):**
+
+| Tecnología | Uso |
+|---|---|
 | Motor OCR de código abierto (por definir) | Extracción de texto de imágenes y PDF escaneados, en el servidor (HU-008). |
 | Librería de recepción de archivos (por definir) | Carga de archivos subidos desde el navegador (HU-008). |
 | Servicio de IA externo (proveedor por definir) | Selección de libros a partir de una descripción en lenguaje natural (HU-009). |
+
+No se instalan ni configuran hasta que sus capacidades se especifiquen.
 
 ### 4.2. Tecnologías de seguridad
 
@@ -237,10 +252,16 @@ Las tecnologías de la versión 1.0 **se mantienen sin cambios**.
 | Helmet | Cabeceras HTTP de seguridad. |
 | express-rate-limit | Limitación de solicitudes. |
 
+**Nota sobre `connect-sqlite3`:** esta librería depende del paquete `sqlite3` y gestiona por sí misma su archivo y su tabla de sesiones. Por ello:
+
+- Las sesiones se guardan en un archivo separado: `data/sessions.sqlite`.
+- La tabla de sesiones **no** forma parte de `schema.sql` ni de las migraciones.
+- `sqlite3` se acepta como dependencia transitiva usada **únicamente** por el almacén de sesiones. El resto del proyecto usa `better-sqlite3`.
+
 Reglas de seguridad:
 
 - La autenticación usa **sesiones con cookies**. No se usa JWT.
-- Las cookies deben ser `HttpOnly`, `Secure` en producción y con una política `SameSite` adecuada.
+- Las cookies deben ser `HttpOnly`, `Secure` en producción y con una política `SameSite` definida en §4.8.
 - Las contraseñas nunca se almacenan ni se registran en texto plano.
 - Las reglas de acceso se aplican siempre en el backend, nunca solo ocultando elementos en la interfaz.
 
@@ -251,6 +272,8 @@ Reglas de seguridad:
 - La comunicación con el backend se hace solo mediante la API REST.
 - Las interfaces deben ser responsivas.
 - El frontend no accede directamente a SQLite.
+- No se usan estilos ni scripts *inline* (atributos `style`, `onclick`, bloques `<script>` o `<style>` con contenido), porque la política de seguridad de contenido de Helmet los bloquea.
+- Los textos provenientes de la API se insertan con `textContent`, nunca con `innerHTML`.
 
 ### 4.4. Restricciones del backend
 
@@ -258,8 +281,11 @@ Reglas de seguridad:
 - Las reglas de negocio están separadas de las consultas SQL.
 - Las operaciones administrativas exigen autenticación y autorización.
 - Las validaciones importantes se ejecutan en el backend.
-- Los errores se gestionan de forma centralizada mediante `error.middleware.js`.
+- Los errores se gestionan de forma centralizada mediante `error.middleware.js`, con el formato de §4.7.
 - El backend no expone archivos internos ni información sensible.
+
+**Reglas anticipadas para capacidades Posteriores (HU-008 y HU-009; no aplican al MVP):**
+
 - Los archivos subidos para su procesamiento (por ejemplo, para digitalización) se validan por tipo y tamaño en el backend, se procesan y no se conservan: solo se almacena el texto resultante.
 - Las rutas que reciben archivos están sujetas a limitación de solicitudes y exigen autenticación.
 - Las llamadas a servicios externos de IA se hacen solo desde el backend. La clave de acceso se guarda en una variable de entorno y nunca se expone al frontend ni se versiona.
@@ -269,10 +295,11 @@ Reglas de seguridad:
 ### 4.5. Restricciones de la base de datos
 
 - El acceso se realiza exclusivamente mediante el backend.
-- El archivo de base de datos **no se incluye en Git**.
+- Los archivos de base de datos **no se incluyen en Git**.
 - Las modificaciones estructurales se documentan mediante migraciones en `src/database/migrations/`.
 - `src/database/schema.sql` refleja el esquema vigente.
 - Las restricciones de integridad se aplican también a nivel de base de datos cuando corresponda.
+- El procedimiento operativo se define en §4.11.
 
 ### 4.6. Restricciones de infraestructura
 
@@ -282,8 +309,121 @@ Reglas de seguridad:
 - Las conexiones públicas usan HTTPS.
 - `data/` permanece fuera del acceso público.
 - Deben contemplarse procedimientos de respaldo y recuperación de SQLite.
-- El límite de tamaño de carga de archivos de Nginx debe ser coherente con el límite definido en el backend.
-- El servidor debe tener salida a Internet hacia el servicio de IA externo. `.env.example` incluye el nombre de la variable de la clave, sin su valor.
+- Detrás de Nginx, Express debe confiar en el proxy (ver `TRUST_PROXY` en §4.9).
+- *Anticipado para capacidades Posteriores:* el límite de tamaño de carga de archivos de Nginx debe ser coherente con el definido en el backend, y el servidor debe tener salida a Internet hacia el servicio de IA externo.
+
+### 4.7. Formato de respuestas de la API
+
+Todas las respuestas de `/api` son JSON con una de estas estructuras.
+
+**Éxito:**
+
+```json
+{ "data": { } }
+```
+
+`data` contiene un objeto o un arreglo. Cuando una respuesta necesite información adicional (por ejemplo, el total de resultados), se agrega `"meta": { }` junto a `data`.
+
+**Error:**
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Mensaje legible en español.",
+    "fields": { "title": "El título es obligatorio." }
+  }
+}
+```
+
+- `code` es una cadena estable en `UPPER_SNAKE_CASE`, pensada para que el frontend decida qué hacer.
+- `message` es un texto en español apto para mostrarse al usuario.
+- `fields` es opcional y solo aparece en errores de validación: asocia cada campo con su mensaje.
+
+**Códigos HTTP y códigos de error base:**
+
+| HTTP | Uso | `code` |
+|---|---|---|
+| 200 | Consulta o modificación exitosa. | — |
+| 201 | Recurso creado. | — |
+| 204 | Eliminación exitosa, sin cuerpo. | — |
+| 400 | Datos inválidos o malformados. | `VALIDATION_ERROR` |
+| 401 | Sin sesión válida. | `UNAUTHENTICATED` |
+| 403 | Sesión válida pero sin permiso, o verificación de origen fallida. | `FORBIDDEN` |
+| 404 | Recurso no encontrado. | `NOT_FOUND` |
+| 409 | Conflicto (por ejemplo, libro duplicado). | `CONFLICT` |
+| 429 | Demasiadas solicitudes. | `RATE_LIMITED` |
+| 500 | Error interno. | `INTERNAL_ERROR` |
+
+Reglas:
+
+- Los errores 500 nunca incluyen trazas, rutas internas ni mensajes de la base de datos.
+- Las especificaciones posteriores pueden agregar códigos propios, sin cambiar esta estructura.
+- Un inicio de sesión fallido responde con un mensaje genérico que no revela si el usuario existe.
+
+### 4.8. Sesión, CSRF y limitación de solicitudes
+
+| Aspecto | Decisión |
+|---|---|
+| Nombre de la cookie | `ib.sid` |
+| Atributos | `HttpOnly`, `SameSite=Lax`, `Secure` en producción. |
+| Duración | 8 horas de inactividad (expiración deslizante). |
+| Regeneración | Se regenera el identificador de sesión al iniciar sesión. |
+| Cierre de sesión | Destruye la sesión en el servidor y borra la cookie. |
+| Almacén | `connect-sqlite3` en `data/sessions.sqlite`. |
+| `trust proxy` | Activado en producción (detrás de Nginx), controlado por `TRUST_PROXY`. |
+| Protección CSRF | `SameSite=Lax` más verificación del encabezado `Origin` (o `Referer` si falta) en `POST`, `PUT`, `PATCH` y `DELETE`, contra el origen permitido (`ALLOWED_ORIGIN`). Los métodos que modifican exigen `Content-Type: application/json`. |
+| Límite del login | 5 intentos fallidos por IP cada 15 minutos. Respuesta 429 con `RATE_LIMITED`. |
+| Límite general de `/api` | 100 solicitudes por IP por minuto. |
+
+Los valores numéricos son iniciales y pueden ajustarse en la especificación del inicio de sesión (SPEC-001) sin modificar esta sección, siempre que se justifique.
+
+### 4.9. Variables de entorno
+
+`src/config/env.js` lee y valida las variables al arrancar. Si falta una obligatoria, la aplicación no inicia y lo indica con un mensaje claro. `.env.example` lista los nombres sin valores sensibles.
+
+| Variable | Obligatoria | Descripción |
+|---|:---:|---|
+| `NODE_ENV` | Sí | `development`, `test` o `production`. |
+| `PORT` | Sí | Puerto en el que escucha Node.js. |
+| `DATABASE_PATH` | Sí | Ruta del archivo SQLite del catálogo (por ejemplo, `data/library.sqlite`). |
+| `SESSIONS_DIR` | Sí | Directorio del archivo de sesiones (por ejemplo, `data`). |
+| `SESSIONS_DB` | Sí | Nombre del archivo de sesiones (por ejemplo, `sessions.sqlite`). |
+| `SESSION_SECRET` | Sí | Secreto para firmar la cookie de sesión. Largo y aleatorio. |
+| `TRUST_PROXY` | No | `1` cuando hay un proxy inverso delante. Por defecto `0`. |
+| `ALLOWED_ORIGIN` | Sí | Origen permitido para la verificación CSRF (por ejemplo, `https://biblioteca.ejemplo.edu`). |
+
+Las variables de las capacidades Posteriores (clave del servicio de IA, límites de carga) se definirán en sus propias especificaciones.
+
+### 4.10. Estrategia de pruebas
+
+- Se usa el ejecutor nativo de Node.js: **`node:test`** con `node:assert`. No se agregan frameworks de pruebas.
+- Las pruebas se ubican en `tests/auth/` y `tests/books/`, con nombres `*.test.js`.
+- Cada prueba que toque la base de datos usa una base **temporal o en memoria**, creada con `schema.sql`, nunca la base real.
+- Las pruebas de API usan el servidor de la aplicación en un puerto efímero y la API `fetch` nativa de Node.
+- Cada especificación define sus casos de prueba; la Definition of Done (§7.2) exige que pasen.
+
+### 4.11. Operación de la base de datos
+
+- Al abrir cada conexión se ejecutan `PRAGMA foreign_keys = ON` y `PRAGMA journal_mode = WAL`.
+- `scripts/init-db.js` crea el archivo de base de datos si no existe y aplica `schema.sql`. Debe poder ejecutarse más de una vez sin dañar datos existentes.
+- Las migraciones son archivos SQL numerados en `src/database/migrations/` (por ejemplo, `001-nombre.sql`), aplicados en orden. Las migraciones aplicadas se registran en una tabla `schema_migrations`.
+- Toda migración se refleja también en `schema.sql`, que representa el esquema vigente completo.
+- `scripts/create-admin.js` crea una cuenta de Administración pidiendo usuario y contraseña por línea de comandos, y guarda solo el hash (bcryptjs). La contraseña no se imprime ni se registra.
+- El respaldo consiste en copiar el archivo de base de datos con la aplicación detenida o mediante el mecanismo de respaldo de SQLite. El procedimiento operativo queda fuera de alcance (§8.3).
+
+### 4.12. Node.js y scripts npm
+
+- `package.json` declara `"type": "module"` y el campo `engines` con la versión LTS de Node.js vigente al iniciar el desarrollo (el número exacto se fija en el incremento de andamiaje).
+- Scripts npm obligatorios:
+
+| Script | Función |
+|---|---|
+| `npm start` | Inicia el servidor en modo producción. |
+| `npm run dev` | Inicia el servidor en modo desarrollo con reinicio automático (`node --watch`). |
+| `npm test` | Ejecuta todas las pruebas con `node --test`. |
+| `npm run db:init` | Ejecuta `scripts/init-db.js`. |
+| `npm run admin:create` | Ejecuta `scripts/create-admin.js`. |
 
 ## 5. Convenciones de nombres
 
@@ -304,11 +444,14 @@ Reglas de seguridad:
 
 Se usan `import` y `export` de ES Modules en todo el proyecto. No se usa CommonJS (`require`).
 
+**Idioma:** el código (nombres, comentarios técnicos, mensajes de commit) va en **inglés**. Los textos que ve el usuario (interfaz y mensajes de error de la API) van en **español**.
+
 ### 5.3. Base de datos
 
 - Tablas y columnas en `snake_case`.
-- Nombres de tablas en plural (`administrators`, `books`, `sessions`).
-- Columnas de ejemplo: `password_hash`, `created_at`, `updated_at`, `shelf_label`.
+- Nombres de tablas en plural (`administrators`, `books`).
+- Columnas de ejemplo: `password_hash`, `created_at`, `updated_at`, `shelf_label`, `title_normalized`.
+- Las sesiones las gestiona `connect-sqlite3` en su propio archivo (§4.2); no se modelan en `schema.sql`.
 - Los nombres deben ser descriptivos y consistentes. Los campos definitivos de cada tabla se fijarán en la especificación correspondiente.
 
 ### 5.4. CSS
@@ -316,11 +459,13 @@ Se usan `import` y `export` de ES Modules en todo el proyecto. No se usa CommonJ
 - Clases en `kebab-case` (`.book-card`, `.search-input`, `.login-form`, `.admin-dashboard`).
 - Se evitan selectores excesivamente específicos y estilos duplicados.
 - Los estilos comunes van en `base.css`, `layout.css` y `components.css`. Los propios de cada área van en `public.css` y `admin.css`.
+- Los valores de color, espaciado, tipografía, radio y sombra se toman de los tokens de §9.2, no se escriben directamente.
 
 ### 5.5. API REST
 
 - Rutas en minúsculas, con sustantivos en plural y prefijo `/api` (por ejemplo, `/api/books`).
 - Los métodos HTTP expresan la acción. Los detalles de cada endpoint se definirán en su especificación.
+- Las respuestas siguen el formato de §4.7.
 
 ### 5.6. Documentación
 
@@ -374,7 +519,7 @@ Los mensajes de commit se escriben en inglés y cada commit representa un cambio
 
 ### 6.5. Archivos que no se versionan
 
-`.env`, el archivo de base de datos dentro de `data/`, `node_modules/` y cualquier archivo con credenciales. Esto debe quedar reflejado en `.gitignore`.
+`.env`, los archivos de base de datos y de sesiones dentro de `data/` (incluidos los auxiliares de WAL: `*-wal` y `*-shm`), `node_modules/` y cualquier archivo con credenciales. Esto debe quedar reflejado en `.gitignore`.
 
 ## 7. Definition of Done técnica inicial
 
@@ -387,11 +532,12 @@ Un incremento se considera terminado cuando cumple los criterios que le **aplica
 - Mantiene la separación de responsabilidades (secciones 3.2 y 3.3).
 - No incluye dependencias ni funcionalidades no justificadas ni no solicitadas.
 - No contiene credenciales ni información sensible.
+- No contiene estilos ni scripts *inline* (§4.3).
 
 ### 7.2. Calidad
 
 - No presenta errores de sintaxis.
-- Se ejecutaron las pruebas correspondientes al incremento y pasan.
+- Se ejecutaron las pruebas correspondientes al incremento (§4.10) y pasan.
 - Se verificaron los casos de error relevantes.
 - Ninguna prueba se declara ejecutada sin haberse ejecutado realmente. El resultado de cada verificación lo reporta quien la ejecutó.
 
@@ -407,17 +553,26 @@ Un incremento se considera terminado cuando cumple los criterios que le **aplica
 
 - La estructura respeta el esquema vigente.
 - Se mantienen las restricciones de integridad.
-- Los cambios estructurales están documentados como migraciones.
+- Los cambios estructurales están documentados como migraciones y reflejados en `schema.sql`.
 - Se verifica la persistencia cuando corresponde.
 
-### 7.5. Documentación y Git
+### 7.5. Interfaz
+
+Aplica a incrementos que modifican páginas HTML, CSS o JavaScript del frontend.
+
+- Usa la plantilla HTML y los tokens de la sección 9.
+- Funciona con teclado y muestra foco visible.
+- Se revisó en ancho móvil (320 px) y en escritorio.
+- Los textos visibles están en español.
+
+### 7.6. Documentación y Git
 
 - Los cambios relevantes están documentados.
 - Los commits siguen las convenciones de la sección 6.
 - Los cambios están en la rama correcta.
 - El resultado puede verificarse siguiendo instrucciones escritas, que indican cómo comprobarlo paso a paso.
 
-### 7.6. Criterio de cierre de esta especificación
+### 7.7. Criterio de cierre de esta especificación
 
 Se considera cumplida cuando: (a) el archivo existe en `docs/specifications/SPEC-000-foundation.md`, (b) fue revisado y aprobado por el equipo, y (c) fue registrado con un commit `docs:` en la rama correspondiente.
 
@@ -434,8 +589,11 @@ Los siguientes elementos no forman parte de esta especificación y no deben impl
 - Implementación de interfaces funcionales.
 - Implementación del inicio de sesión.
 - Creación o gestión de cuentas desde la interfaz.
-- Digitalización de libros mediante escaneo y extracción de texto.
-- Filtrado de libros manualmente o mediante inteligencia artificial.
+- Cambio de contraseña y desactivación de cuentas (fuera del MVP).
+- Digitalización de libros mediante escaneo y extracción de texto (capacidad Posterior #8).
+- Filtrado de libros mediante inteligencia artificial (capacidad Posterior #9).
+
+Las reglas de las secciones 4.1 y 4.4 sobre OCR, carga de archivos e IA son **anticipadas**: documentan restricciones para cuando esas capacidades se especifiquen y no obligan a implementar nada en el MVP.
 
 ### 8.2. Tecnologías
 
@@ -452,10 +610,152 @@ Los siguientes elementos no forman parte de esta especificación y no deben impl
 - Adquisición de dominio.
 - Despliegue en producción.
 - Configuración operativa de respaldos automáticos.
+- Registro de actividad (*logging*) avanzado.
 - Integración con servicios externos no definidos.
 
 Estos elementos podrán evaluarse en etapas posteriores cuando exista una necesidad concreta.
 
+## 9. Base de interfaz
+
+Esta sección fija el terreno común del frontend. El contenido de los archivos CSS y de las plantillas HTML se construye en un incremento de andamiaje, respetando lo definido aquí. No describe pantallas ni funcionalidades.
+
+### 9.1. Reglas transversales
+
+- Idioma de la interfaz: español (`lang="es"`).
+- Diseño **mobile-first**: los estilos base son para móvil y se amplían con `@media (min-width: …)`.
+- Puntos de quiebre (valores literales, porque las variables CSS no funcionan dentro de `@media`): **600 px** (tablet) y **900 px** (escritorio).
+- Navegadores soportados: versiones actuales de Chrome, Edge, Firefox y Safari.
+- Sin estilos ni scripts *inline* (§4.3).
+- Textos de la API insertados con `textContent` (§4.3).
+- Accesibilidad mínima:
+  - contraste de texto suficiente (relación mínima 4.5:1 para texto normal);
+  - todo campo de formulario con `<label>` asociado;
+  - toda función disponible con teclado y foco siempre visible;
+  - enlace «Saltar al contenido» al inicio de cada página;
+  - resultados de búsqueda y mensajes de estado anunciados con `aria-live`;
+  - el estado «agotado» se comunica con texto, no solo con color.
+
+### 9.2. Tokens de diseño (`base.css`)
+
+Se definen como variables CSS en `:root`. Los valores son **iniciales** y se validan (contraste incluido) en el incremento de andamiaje.
+
+| Grupo | Tokens |
+|---|---|
+| Color | `--color-bg`, `--color-surface`, `--color-text`, `--color-text-muted`, `--color-border`, `--color-primary`, `--color-primary-contrast`, `--color-danger`, `--color-success`, `--color-warning`, `--color-focus` |
+| Tipografía | `--font-family` (pila de fuentes del sistema), `--font-size-sm`, `--font-size-base`, `--font-size-lg`, `--font-size-xl`, `--line-height` |
+| Espaciado | `--space-1` (0.25rem), `--space-2` (0.5rem), `--space-3` (1rem), `--space-4` (1.5rem), `--space-5` (2rem) |
+| Forma | `--radius`, `--shadow` |
+| Layout | `--container-max` (por ejemplo, 60rem) |
+
+Sin fuentes externas ni recursos de terceros: la interfaz debe funcionar sin acceso a CDN.
+
+### 9.3. Responsabilidad de cada hoja de estilos
+
+| Archivo | Contenido |
+|---|---|
+| `base.css` | Tokens, reinicio (*reset*), estilos de elementos HTML base y estilo de foco visible. |
+| `layout.css` | Contenedor con ancho máximo, estructura `header` / `main` / `footer`, cuadrícula de resultados y reglas responsivas. |
+| `components.css` | Botón (primario, secundario, peligro), campo de formulario con etiqueta y mensaje de error, alerta, tarjeta de libro, insignia «agotado», panel de detalle, estados vacío, cargando y error. |
+| `public.css` | Solo lo propio del área de Estudiantes. |
+| `admin.css` | Solo lo propio del área de Administración. |
+
+### 9.4. Plantilla HTML común
+
+Todas las páginas (`index.html`, `login.html`, `admin/index.html`) comparten esta estructura:
+
+- `<!DOCTYPE html>` y `<html lang="es">`.
+- En `<head>`: `charset` UTF-8, `viewport`, `<title>` descriptivo y las hojas de estilo en este orden: `base.css`, `layout.css`, `components.css` y la propia del área.
+- Enlace «Saltar al contenido» como primer elemento de `<body>`.
+- Regiones semánticas: `<header>`, `<main id="contenido">` y `<footer>`.
+- Un único `<script type="module">` con `src` al módulo de entrada del área (`public/js/public/main.js` o `public/js/admin/main.js`; en `login.html`, `public/js/admin/auth.js`).
+- Las rutas de recursos son absolutas desde la raíz (por ejemplo, `/css/base.css`) para que funcionen también desde `/admin/`.
+
+### 9.5. Módulos JavaScript compartidos
+
+- `public/js/shared/api.js` expone una función única de petición que:
+  - envía y recibe JSON, incluyendo las cookies de sesión;
+  - interpreta el formato de respuesta de §4.7;
+  - ante un error, lanza un error con `code`, `message` y `fields`;
+  - ante un 401 en el área de Administración, redirige a `/login.html`.
+- `public/js/shared/utils.js` contiene utilidades de interfaz sin acceso a la API (por ejemplo, crear elementos con texto seguro, mostrar u ocultar estados).
+- Los módulos de cada área no llaman a `fetch` directamente.
+
+## 10. Decisiones de producto transversales
+
+Decisiones confirmadas que cada SPEC funcional debe respetar y detallar.
+
+| # | Tema | Decisión |
+|---|---|---|
+| 1 | Duplicados | No se permiten. Un duplicado es el mismo título y autor, comparados sin distinguir mayúsculas, acentos ni espacios sobrantes. Se aplica en el servicio y con una restricción `UNIQUE` en la base de datos. Respuesta: 409 `CONFLICT`. |
+| 2 | Listado | No existe listado completo del catálogo. Se llega a los libros solo mediante búsqueda (Estudiantes y Administración). |
+| 3 | Detalle del libro | Es un panel dentro de `index.html` (y el mismo patrón en `admin/index.html`), no una página propia. Muestra el estante asignado, si lo tiene. |
+| 4 | Estante | Etiqueta de texto libre asignada al libro. No es una entidad ni se gestiona por separado. |
+| 5 | Búsqueda | Coincidencia parcial, sin distinguir mayúsculas ni acentos, sobre título y autor. Se implementa con columnas normalizadas (`title_normalized`, `author_normalized`), no con FTS5. |
+| 6 | Normalización de texto | Recortar espacios, colapsar espacios internos, pasar a minúsculas y eliminar marcas diacríticas (descomposición Unicode NFD). Una única función en `src/utils/` la implementa y la usan tanto la búsqueda como la detección de duplicados. |
+| 7 | Eliminación | Borrado físico, con confirmación previa en la interfaz. Es la única vía para retirar un título agotado. |
+| 8 | Cuentas | Contraseña de 8 a 72 caracteres (72 es el límite de bcrypt). Cambio de contraseña y desactivación de cuentas quedan fuera del MVP. |
+
+**Límites de campos:**
+
+| Campo | Límite |
+|---|---|
+| Título | Obligatorio, máximo 200 caracteres. |
+| Autor | Obligatorio, máximo 150 caracteres. |
+| Estante | Opcional, máximo 30 caracteres. |
+| Cantidad | Entero de 0 a 999 (`MAX_BOOK_QUANTITY = 999`). Mínimo **1 al registrar**; **0 solo al editar** (el libro se muestra como «agotado»). |
+
+Estos límites se validan en el backend y se reflejan en la base de datos cuando corresponda.
+
+## 11. Glosario
+
+| Término | Significado |
+|---|---|
+| **Libro (título)** | Registro del catálogo que representa un título de un autor. Hay un registro por título, no uno por ejemplar físico. |
+| **Ejemplar** | Copia física de un libro. Su número se guarda en el campo cantidad. |
+| **Cantidad** | Número de ejemplares disponibles, ajustado manualmente por la Administración. |
+| **Agotado** | Estado de un libro con cantidad igual a 0. Se muestra marcado. |
+| **Estante** | Etiqueta de texto que indica dónde se guarda el libro. |
+| **Catálogo** | Conjunto de libros registrados en el sistema. |
+| **Administración** | Perfil con cuenta e inicio de sesión que mantiene el catálogo. |
+| **Estudiante** | Perfil sin cuenta que solo consulta el catálogo. |
+| **Capacidad** | Elemento del Product Backlog (numeradas del 1 al 9). |
+| **HU** | Historia de usuario, derivada de una capacidad. |
+| **SPEC** | Especificación técnica de un incremento. |
+
+## 12. Proceso de especificación
+
+### 12.1. Trazabilidad
+
+Cada capacidad del Product Backlog tiene una HU (`HU-NNN`) y cada SPEC funcional indica a qué HU responde. Una SPEC puede cubrir una HU o un grupo de HU estrechamente relacionadas, pero toda HU del MVP debe quedar cubierta por alguna SPEC.
+
+### 12.2. Definition of Ready (de una HU)
+
+Una HU está lista para especificarse cuando:
+
+- corresponde a una capacidad del Product Backlog;
+- indica el perfil que la usa (Administración, Estudiante o ambos);
+- tiene criterios de aceptación observables;
+- no contradice SPEC-000 ni la sección 10;
+- no tiene ambigüedades importantes sin resolver (si las tiene, se resuelven antes).
+
+### 12.3. Plantilla de SPEC funcional
+
+Toda `SPEC-NNN` (N ≥ 1) contiene, en este orden:
+
+1. **Encabezado:** proyecto, tipo, versión, estado y fecha.
+2. **Propósito y HU relacionadas.**
+3. **Alcance y fuera de alcance.**
+4. **Reglas de negocio.**
+5. **Modelo de datos** (campos, tipos y restricciones del incremento).
+6. **Contrato de la API** (método, ruta, entrada, salidas y errores, según §4.7).
+7. **Interfaz** (comportamiento, estados y textos; respetando la sección 9).
+8. **Seguridad.**
+9. **Casos de prueba** (según §4.10).
+10. **Plan de verificación** (pasos escritos para comprobar el resultado).
+11. **Definition of Done aplicable** (qué apartados de la sección 7 aplican).
+
+Una SPEC solo puede contradecir a SPEC-000 declarándolo de forma explícita y proponiendo su actualización.
+
 ---
 
-**Fin de SPEC-000-foundation.md (v2.0)**
+**Fin de SPEC-000-foundation.md (v2.1)**
