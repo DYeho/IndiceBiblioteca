@@ -1,0 +1,10 @@
+# Secrets and environment (SPEC-000 §6.5)
+.env
+ 
+# Dependencies
+node_modules/
+ 
+# SQLite databases and WAL files (only data/.gitkeep is versioned)
+data/*.sqlite
+data/*.sqlite-wal
+data/*.sqlite-shm
