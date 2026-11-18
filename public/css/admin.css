@@ -20,3 +20,22 @@
   flex-wrap: wrap;
   gap: var(--space-2);
 }
+
+/* Administration area styles. */
+.admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.admin-nav .btn[aria-current="page"] {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.admin-section {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
