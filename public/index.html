@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Índice Biblioteca · Encuentra tu libro</title>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/public.css">
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <p><strong>Índice Biblioteca</strong></p>
+      <nav aria-label="Principal">
+        <a href="./login.html">Acceso Administración</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main" id="contenido">
+    <div class="container stack">
+
+      <div class="page-intro">
+        <h1>Encuentra tu libro</h1>
+        <p>Busca por título o autor y mira en qué estante está.</p>
+      </div>
+
+      <form class="form-field" id="search-form" role="search" novalidate>
+        <label class="form-label" for="search-input">Buscar por título o autor</label>
+        <div class="search-form">
+          <input
+            class="form-input search-input"
+            id="search-input"
+            name="q"
+            type="search"
+            maxlength="200"
+            autocomplete="off"
+            aria-describedby="search-error"
+          >
+          <button class="button button-primary" id="search-submit" type="submit">Buscar</button>
+        </div>
+        <p class="form-error" id="search-error" hidden></p>
+      </form>
+
+      <div class="search-layout">
+        <section class="search-results stack" aria-label="Resultados de búsqueda">
+          <div id="search-summary" role="status" aria-live="polite"></div>
+          <div id="results-container"></div>
+        </section>
+
+        <aside class="detail-region" id="detail-region" aria-label="Detalle del libro" hidden></aside>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Catálogo de la biblioteca estudiantil</p>
+    </div>
+  </footer>
+
+  <script type="module" src="./js/public/main.js"></script>
+</body>
+</html>
