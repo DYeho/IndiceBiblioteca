@@ -30,7 +30,7 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | HU | Nombre | Estado | Observación |
 |---|---|---|---|
 | HU-001 | Inicio de sesión | Pendiente | Incluye cierre de sesión (CA-007 propuesto, D-04). |
-| HU-002 | Registrar libro físico | Pendiente | |
+| HU-002 | Registrar libro físico | En Curso | |
 | HU-006 | Búsqueda de libros por nombre o autor | Pendiente | CA-009 y CA-010 quedan parcialmente verificados (D-02). Se cierran en el Sprint 2. |
 
 **Fuera del sprint:** HU-003, HU-004, HU-005, HU-008, HU-009 y la capacidad 7.
@@ -43,10 +43,10 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | T-00 | Aplicar los ajustes documentales autorizados (SPEC-001 Anexo B): HU-001, HU-002, HU-006, HU-004 y actualización de SPEC-000. | Todas | | `docs/spec-001` | Pendiente |
 | T-01 | Preparar proyecto: rama `develop`, `package.json` (`type: module`, `engines`, scripts npm), dependencias, `.gitignore`, `.env.example` y estructura de directorios. Confirmar que `better-sqlite3` y `sqlite3` instalan en el Node.js LTS vigente. | Todas | | `feature/project-scaffolding` | Pendiente |
 | T-02 | `src/config/env.js`: lectura con `process.loadEnvFile()` y validación al arrancar. | Todas | T-01 | `feature/project-scaffolding` | Pendiente |
-| T-03 | Base de datos: `connection.js` (PRAGMAs), `schema.sql` (`administrators`, `books`, `schema_migrations`), `init-db.js` idempotente. | HU-001, HU-002, HU-006 | T-02 | `feature/project-scaffolding` | Pendiente |
+| T-03 | Base de datos: `connection.js` (PRAGMAs), `schema.sql` (`administrators`, `books`, `schema_migrations`), `init-db.js` idempotente. | HU-001, HU-002, HU-006 | T-02 | `feature/project-scaffolding` | Terminada |
 | T-04 | `app.js` (fábrica) y `server.js`: Helmet con CSP, JSON con límite, proxy de confianza, estáticos, `error.middleware`, `errors.js` y 404 de API. | Todas | T-02 | `feature/project-scaffolding` | Pendiente |
 | T-05 | Middlewares transversales: verificación de origen y tipo de contenido, `no-store` y limitador general de `/api`. | Todas | T-04 | `feature/project-scaffolding` | Pendiente |
-| T-06 | `src/utils/normalize-text.js` con sus pruebas (PN-01 a PN-06). | HU-002, HU-006 | T-01 | `feature/project-scaffolding` | Pendiente |
+| T-06 | `src/utils/normalize-text.js` con sus pruebas (PN-01 a PN-06). | HU-002, HU-006 | T-01 | `feature/project-scaffolding` | Terminada |
 | T-07 | Base de interfaz mínima: tokens y estilos (`base.css`, `layout.css`, `components.css`), plantilla HTML, `shared/api.js` y `shared/utils.js`. | Todas | T-01 | `feature/project-scaffolding` | Pendiente |
 | **Bloque B. HU-001** | | | | | |
 | T-08 | `scripts/create-admin.js` y la creación de cuenta en `auth.service` (valida usuario, contraseña, hash, sin imprimir). | HU-001 | T-03 | `feature/admin-authentication` | Pendiente |
@@ -57,10 +57,10 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | T-13 | Pruebas de acceso (`tests/auth/`, PA-01 a PA-22 excepto PA-20). Incluye `tests/test-app.js`. | HU-001 | T-10, T-11 | `feature/admin-authentication` | Pendiente |
 | T-14 | Cierre de sesión: endpoint, botón "Cerrar sesión" y prueba PA-20. | HU-001 | T-11, T-12 | `feature/admin-authentication` | Pendiente |
 | **Bloque C. HU-002** | | | | | |
-| T-15 | `books.repository` y `books.service`: validación, normalización, detección de duplicado y conversión de `UNIQUE` a 409. | HU-002 | T-03, T-06 | `feature/book-registration` | Pendiente |
-| T-16 | Controlador y rutas de `POST /api/books` con `requireAdmin`. | HU-002 | T-11, T-15 | `feature/book-registration` | Pendiente |
-| T-17 | Formulario de registro en `admin/index.html` y `admin/books.js`. | HU-002 | T-12, T-16 | `feature/book-registration` | Pendiente |
-| T-18 | Pruebas de registro, duplicados y persistencia (`tests/books/`, PB-01 a PB-16). | HU-002 | T-16 | `feature/book-registration` | Pendiente |
+| T-15 | `books.repository` y `books.service`: validación, normalización, detección de duplicado y conversión de `UNIQUE` a 409. | HU-002 | T-03, T-06 | `feature/book-registration` | Terminada |
+| T-16 | Controlador y rutas de `POST /api/books` con `requireAdmin`. | HU-002 | T-11, T-15 | `feature/book-registration` | Terminada |
+| T-17 | Formulario de registro en `admin/index.html` y `admin/books.js`. | HU-002 | T-12, T-16 | `feature/book-registration` | En Curso |
+| T-18 | Pruebas de registro, duplicados y persistencia (`tests/books/`, PB-01 a PB-16). | HU-002 | T-16 | `feature/book-registration` | Terminada |
 | **Bloque D. HU-006** | | | | | |
 | T-19 | Repositorio y servicio de búsqueda: coincidencia con `instr()`, orden y validación de `q`. | HU-006 | T-06, T-15 | `feature/book-search` | Pendiente |
 | T-20 | Controlador y ruta pública `GET /api/books?q=`. | HU-006 | T-19 | `feature/book-search` | Pendiente |
