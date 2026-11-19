@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { normalizeText } from '../../src/utils/normalize-text.js';
-import { startTestApp } from '../helpers/test-app.js';
+import { createTestApp } from '../test-app.js';
 
 describe('Búsqueda pública de libros GET /api/books (HU-006)', () => {
-  let ctx;
+  let app;
 
   before(async () => {
-    ctx = await startTestApp();
-    const insert = ctx.db.prepare(`
+    app = await createTestApp();
+    const insert = app.db.prepare(`
       INSERT INTO books (title, author, quantity, shelf_label, title_normalized, author_normalized)
       VALUES (@title, @author, @quantity, @shelfLabel, @titleNormalized, @authorNormalized)
     `);
@@ -31,7 +31,7 @@ describe('Búsqueda pública de libros GET /api/books (HU-006)', () => {
   });
 
   after(async () => {
-    await ctx.close();
+    await app.close();
   });
 
   it('valida parámetro q ausente, vacío, solo diacríticos, repetido o > 200 caracteres', async () => {
@@ -44,42 +44,45 @@ describe('Búsqueda pública de libros GET /api/books (HU-006)', () => {
     ];
 
     for (const url of invalidUrls) {
-      const res = await ctx.request(url);
+      const res = await app.request(url, { method: 'GET' });
+      const json = await res.json();
       assert.equal(res.status, 400, `Se esperaba 400 para ${url}`);
-      assert.equal(res.json.error.code, 'VALIDATION_ERROR');
-      assert.ok(res.json.error.fields.q);
+      assert.equal(json.error.code, 'VALIDATION_ERROR');
+      assert.ok(json.error.fields.q);
     }
   });
 
   it('busca sin distinguir mayúsculas ni tildes y expone solo los campos públicos', async () => {
-    const res = await ctx.request('/api/books?q=GARC%C3%8DA');
+    const res = await app.request('/api/books?q=GARC%C3%8DA', { method: 'GET' });
+    const json = await res.json();
     assert.equal(res.status, 200);
-    assert.equal(res.json.meta.total, 2);
-    assert.equal(res.json.data.length, 2);
+    assert.equal(json.meta.total, 2);
+    assert.equal(json.data.length, 2);
 
-    const first = res.json.data[0];
+    const first = json.data[0];
     assert.deepEqual(Object.keys(first).sort(), ['author', 'id', 'quantity', 'shelfLabel', 'title']);
     assert.equal(first.title, 'Cien años de soledad');
     assert.equal(first.quantity, 3);
     assert.equal(first.shelfLabel, 'A-3');
-    assert.equal(res.json.data[1].quantity, 0);
+    assert.equal(json.data[1].quantity, 0);
   });
 
   it('ordena determinísticamente por título normalizado, autor normalizado e id', async () => {
-    const res = await ctx.request('/api/books?q=rayuela');
+    const res = await app.request('/api/books?q=rayuela', { method: 'GET' });
+    const json = await res.json();
     assert.equal(res.status, 200);
-    assert.equal(res.json.meta.total, 2);
-    assert.equal(res.json.data[0].author, 'Abelardo Autor');
-    assert.equal(res.json.data[1].author, 'Zulema Autor');
+    assert.equal(json.meta.total, 2);
+    assert.equal(json.data[0].author, 'Abelardo Autor');
+    assert.equal(json.data[1].author, 'Zulema Autor');
   });
 
   it('trata % y _ como caracteres literales y devuelve lista vacía sin coincidencias', async () => {
-    const wildcardRes = await ctx.request('/api/books?q=%25');
+    const wildcardRes = await app.request('/api/books?q=%25', { method: 'GET' });
     assert.equal(wildcardRes.status, 200);
-    assert.deepEqual(wildcardRes.json, { data: [], meta: { total: 0 } });
+    assert.deepEqual(await wildcardRes.json(), { data: [], meta: { total: 0 } });
 
-    const underscoreRes = await ctx.request('/api/books?q=_');
+    const underscoreRes = await app.request('/api/books?q=_', { method: 'GET' });
     assert.equal(underscoreRes.status, 200);
-    assert.deepEqual(underscoreRes.json, { data: [], meta: { total: 0 } });
+    assert.deepEqual(await underscoreRes.json(), { data: [], meta: { total: 0 } });
   });
 });

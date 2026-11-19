@@ -1,8 +1,17 @@
-import { apiRequest } from '../shared/api.js';
-import { clearElement, renderState, renderSummary } from '../shared/utils.js';
+import { ApiError, request } from '../shared/api.js';
+import { createElement } from '../shared/utils.js';
 import { createPublicBooksView } from './books.js';
 
 const MAX_SEARCH_LENGTH = 200;
+
+function renderState(container, text, modifier) {
+  const className = modifier ? `state state-${modifier}` : 'state';
+  container.replaceChildren(createElement('p', { className, text }));
+}
+
+function renderSummary(container, text) {
+  container.replaceChildren(createElement('p', { className: 'results-summary', text }));
+}
 
 export function initPublicSearch() {
   const form = document.getElementById('search-form');
@@ -44,14 +53,13 @@ export function initPublicSearch() {
 
     showInputError('');
     booksView.closeDetail();
-    clearElement(summaryContainer);
+    summaryContainer.replaceChildren();
     renderState(resultsContainer, 'Buscando libros...', 'loading');
     submitButton.disabled = true;
 
     try {
-      const payload = await apiRequest('/api/books', { query: { q: query } });
-      const books = payload?.data ?? [];
-      const total = payload?.meta?.total ?? books.length;
+      const books = (await request(`/api/books?q=${encodeURIComponent(query)}`)) ?? [];
+      const total = books.length;
 
       renderSummary(summaryContainer, total === 1 ? '1 resultado' : `${total} resultados`);
       if (books.length === 0) {
@@ -60,12 +68,12 @@ export function initPublicSearch() {
         booksView.renderBooks(books);
       }
     } catch (error) {
-      clearElement(summaryContainer);
-      if (error.status === 400) {
+      summaryContainer.replaceChildren();
+      if (error instanceof ApiError && error.status === 400) {
         showInputError(error.fields?.q ?? error.message);
         renderState(resultsContainer, 'Escribe un título o autor para buscar en el catálogo.');
         input.focus();
-      } else if (error.status === 429) {
+      } else if (error instanceof ApiError && error.status === 429) {
         renderState(resultsContainer, 'Demasiadas solicitudes. Inténtelo de nuevo más tarde.', 'error');
       } else {
         renderState(resultsContainer, error.message || 'No se pudo conectar con el servidor.', 'error');

@@ -1,8 +1,5 @@
-// Datos de PRUEBA para verificar la búsqueda a mano (SPEC-001 V-20).
-// Solo para la base de DESARROLLO. Se niega a ejecutarse con NODE_ENV=production.
-// Es repetible: los libros que ya existen (mismo título y autor normalizados) se omiten.
 import { loadConfig } from '../src/config/env.js';
-import { assertSchemaReady, openDatabase } from '../src/database/connection.js';
+import { initializeDatabase } from '../src/database/conection.js';
 import { normalizeText } from '../src/utils/normalize-text.js';
 
 const SAMPLE_BOOKS = [
@@ -18,14 +15,13 @@ const SAMPLE_BOOKS = [
 ];
 
 const config = loadConfig();
-if (config.isProduction) {
+if (config.nodeEnv === 'production') {
   console.error('Rechazado: seed-dev.js es solo para desarrollo.');
   process.exit(1);
 }
 
-const db = openDatabase(config.databasePath);
+const db = initializeDatabase(config.databasePath);
 try {
-  assertSchemaReady(db);
   const insert = db.prepare(`
     INSERT OR IGNORE INTO books (title, author, quantity, shelf_label, title_normalized, author_normalized)
     VALUES (@title, @author, @quantity, @shelfLabel, @titleNormalized, @authorNormalized)

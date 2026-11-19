@@ -1,4 +1,4 @@
-import { clearElement, createElement } from '../shared/utils.js';
+import { createElement } from '../shared/utils.js';
 
 function createDetailRow(termText, valueNode) {
   const wrapper = document.createElement('div');
@@ -17,9 +17,6 @@ function formatAvailability(quantity) {
   return createElement('dd', { className: 'detail-value', text });
 }
 
-/**
- * Crea el controlador de tarjetas de resultados y panel de detalle público.
- */
 export function createPublicBooksView({ resultsContainer, detailRegion }) {
   let activeCard = null;
 
@@ -29,7 +26,7 @@ export function createPublicBooksView({ resultsContainer, detailRegion }) {
       activeCard.removeAttribute('aria-current');
       activeCard = null;
     }
-    clearElement(detailRegion);
+    detailRegion.replaceChildren();
     detailRegion.hidden = true;
     if (restoreFocus && cardToFocus) {
       cardToFocus.focus();

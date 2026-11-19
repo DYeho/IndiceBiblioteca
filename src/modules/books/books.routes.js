@@ -5,9 +5,17 @@ export function registerBooksRoutes(router, { requireAdmin, controller }) {
     throw new TypeError('A router, admin guard and books controller are required.');
   }
 
-  // HU-006: public search (RN-A11, RN-B01).
-  router.get('/', controller.search);
-  // HU-002: registration, admin only.
   router.post('/', requireAdmin, controller.register);
+  return router;
+}
+
+// HU-006: búsqueda pública (RN-A11, RN-B01). Separada para no cambiar el registro de HU-002.
+export function registerBookSearchRoutes(router, { controller }) {
+  if (!router || typeof router.get !== 'function' ||
+      !controller || typeof controller.search !== 'function') {
+    throw new TypeError('A router and a books search controller are required.');
+  }
+
+  router.get('/', controller.search);
   return router;
 }
