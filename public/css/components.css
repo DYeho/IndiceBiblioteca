@@ -288,14 +288,15 @@
   }
 }
 
+.book-card-title,
+.book-card-author,
+.detail-title,
+.detail-value {
+  overflow-wrap: anywhere;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .state-loading::before {
     animation: none;
-  }
-  .book-card-title,
-  .book-card-author,
-  .detail-title,
-  .detail-value {
-    overflow-wrap: anywhere;
   }
 }
