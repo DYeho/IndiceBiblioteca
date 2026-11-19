@@ -1,5 +1,6 @@
 import { request, ApiError } from '../shared/api.js';
 import { createElement, setBusy, showMessage } from '../shared/utils.js';
+import { initializeBookRegistration } from './books.js';
 
 const sectionButtons = document.querySelectorAll('[data-section]');
 const logoutButton = document.getElementById('logout');
@@ -47,3 +48,4 @@ for (const button of sectionButtons) {
   button.addEventListener('click', () => showSection(button.dataset.section));
 }
 showSection('buscar');
+initializeBookRegistration();

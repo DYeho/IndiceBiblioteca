@@ -28,6 +28,30 @@
     </section>
     <section id="seccion-registrar" class="admin-section" aria-labelledby="titulo-registrar" hidden>
       <h2 id="titulo-registrar">Registrar libro</h2>
+      <div id="book-messages" role="status" aria-live="polite" aria-atomic="true"></div>
+      <form id="book-form" novalidate>
+        <div class="field">
+          <label for="book-title">Título</label>
+          <input id="book-title" name="title" type="text" required maxlength="200" aria-describedby="book-title-error">
+          <p id="book-title-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="book-author">Autor</label>
+          <input id="book-author" name="author" type="text" required maxlength="150" aria-describedby="book-author-error">
+          <p id="book-author-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="book-description">Descripción (opcional)</label>
+          <textarea id="book-description" name="description" maxlength="2000" rows="5" aria-describedby="book-description-error"></textarea>
+          <p id="book-description-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="book-quantity">Cantidad inicial</label>
+          <input id="book-quantity" name="quantity" type="text" inputmode="numeric" required aria-describedby="book-quantity-error">
+          <p id="book-quantity-error" class="field-error" hidden></p>
+        </div>
+        <button id="register-book" type="submit" class="btn btn-primary">Registrar libro</button>
+      </form>
     </section>
   </main>
   <footer class="site-footer">
