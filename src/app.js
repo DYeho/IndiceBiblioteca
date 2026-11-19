@@ -10,6 +10,12 @@ import { createAuthRepository } from './modules/auth/auth.repository.js';
 import { createAuthService } from './modules/auth/auth.service.js';
 import { createAuthController } from './modules/auth/auth.controller.js';
 import { createAuthRouter } from './modules/auth/auth.routes.js';
+import { createBooksRepository } from './modules/books/books.repository.js';
+import { createBooksService } from './modules/books/books.service.js';
+import { createBooksController } from './modules/books/books.controller.js';
+import { registerBooksRoutes } from './modules/books/books.routes.js';
+import { normalizeText } from './utils/normalize-text.js';
+import { unauthenticated } from './utils/errors.js';
 
 const PUBLIC_DIR = fileURLToPath(new URL('../public/', import.meta.url));
 
@@ -61,9 +67,14 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
   // 4. /api: no-store, JSON reader (16 kB), origin and content type check, general limiter.
   const api = express.Router();
   api.use(noStore);
+  api.use(apiLimiter ?? createApiLimiter());
+  api.post('/books', (req, res, next) => {
+    requireAdmin(req, res, (error) => {
+      next(error?.code === 'UNAUTHENTICATED' ? unauthenticated('Debe iniciar sesión.') : error);
+    });
+  });
   api.use(express.json({ limit: '16kb' }));
   api.use(verifyOriginAndContentType({ allowedOrigin: env.allowedOrigin }));
-  api.use(apiLimiter ?? createApiLimiter());
 
   // 5. Routes.
   api.use(
@@ -74,7 +85,13 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
       loginLimiter,
     })
   );
-  if (routers.books) api.use('/books', routers.books);
+  const booksRouter = routers.books ?? registerBooksRoutes(express.Router(), {
+    requireAdmin,
+    controller: createBooksController({
+      service: createBooksService({ repository: createBooksRepository(db), normalizeText }),
+    }),
+  });
+  api.use('/books', booksRouter);
 
   // 6. JSON 404 for the rest of /api.
   api.use(notFoundApi);
