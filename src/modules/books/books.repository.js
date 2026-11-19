@@ -29,6 +29,15 @@ export function createBooksRepository(database, { now = () => new Date().toISOSt
            shelf_label, created_at, updated_at
     FROM books WHERE id = ?
   `);
+  // T-19: coincidencia con instr() sobre las columnas normalizadas (D-10).
+  // No se usa LIKE: no hay comodines que escapar. El texto va siempre como parámetro.
+  const searchStatement = database.prepare(`
+    SELECT id, title, author, quantity, shelf_label AS shelfLabel
+    FROM books
+    WHERE instr(title_normalized, @text) > 0
+       OR instr(author_normalized, @text) > 0
+    ORDER BY title_normalized, author_normalized, id
+  `);
 
   return {
     findByNormalizedKey(titleNormalized, authorNormalized) {
@@ -47,6 +56,10 @@ export function createBooksRepository(database, { now = () => new Date().toISOSt
         timestamp,
       );
       return mapBook(getBook.get(result.lastInsertRowid));
+    },
+    /** @param {string} normalizedText texto ya normalizado y no vacío */
+    search(normalizedText) {
+      return searchStatement.all({ text: normalizedText });
     },
   };
 }

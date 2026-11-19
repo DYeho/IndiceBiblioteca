@@ -7,6 +7,14 @@ const MIN_BOOK_QUANTITY = 1;
 const MAX_BOOK_QUANTITY = 999;
 const DUPLICATE_MESSAGE = 'Ese libro ya existe. Edite el libro existente.';
 
+export const MAX_SEARCH_LENGTH = 200; // D-06
+
+const SEARCH_MESSAGES = {
+  required: 'Escriba un título o autor para buscar.',
+  tooLong: `El texto de búsqueda no puede superar ${MAX_SEARCH_LENGTH} caracteres.`,
+  repeated: 'El texto de búsqueda debe enviarse una sola vez.',
+};
+
 function characterCount(value) {
   return Array.from(value).length;
 }
@@ -87,6 +95,32 @@ export function createBooksService({ repository, normalizeText }) {
         }
         throw error;
       }
+    },
+
+    /**
+     * HU-006: busca por título o autor (SPEC-001 §6.3).
+     * @param {unknown} rawQuery valor de req.query.q (puede ser undefined o un arreglo si se repite)
+     * @returns {{ books: object[], total: number }}
+     */
+    searchBooks(rawQuery) {
+      if (Array.isArray(rawQuery)) {
+        throw validationError(SEARCH_MESSAGES.repeated, { q: SEARCH_MESSAGES.repeated });
+      }
+      if (typeof rawQuery !== 'string') {
+        throw validationError(SEARCH_MESSAGES.required, { q: SEARCH_MESSAGES.required });
+      }
+
+      const trimmed = rawQuery.trim();
+      const normalized = normalizeText(trimmed);
+      if (normalized === '') {
+        throw validationError(SEARCH_MESSAGES.required, { q: SEARCH_MESSAGES.required });
+      }
+      if (characterCount(trimmed) > MAX_SEARCH_LENGTH) {
+        throw validationError(SEARCH_MESSAGES.tooLong, { q: SEARCH_MESSAGES.tooLong });
+      }
+
+      const books = repository.search(normalized);
+      return { books, total: books.length };
     },
   };
 }

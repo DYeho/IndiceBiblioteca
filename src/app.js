@@ -13,7 +13,7 @@ import { createAuthRouter } from './modules/auth/auth.routes.js';
 import { createBooksRepository } from './modules/books/books.repository.js';
 import { createBooksService } from './modules/books/books.service.js';
 import { createBooksController } from './modules/books/books.controller.js';
-import { registerBooksRoutes } from './modules/books/books.routes.js';
+import { registerBooksRoutes, registerBookSearchRoutes } from './modules/books/books.routes.js';
 import { normalizeText } from './utils/normalize-text.js';
 import { unauthenticated } from './utils/errors.js';
 
@@ -60,6 +60,7 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
   const session = createSessionMiddleware(env, sessionOptions);
   app.use(session.middleware);
 
+  // Module composition (routes → controller → service → repository).
   const authRepository = createAuthRepository(db);
   const authService = createAuthService({ repository: authRepository, bcryptCost });
   const { requireAdmin, adminPageGuard } = createAuthMiddleware({ authRepository });
@@ -85,12 +86,15 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
       loginLimiter,
     })
   );
-  const booksRouter = routers.books ?? registerBooksRoutes(express.Router(), {
-    requireAdmin,
-    controller: createBooksController({
+  // POST /api/books (admin registration, HU-002) and GET /api/books (public search, HU-006).
+  let booksRouter = routers.books;
+  if (!booksRouter) {
+    const booksController = createBooksController({
       service: createBooksService({ repository: createBooksRepository(db), normalizeText }),
-    }),
-  });
+    });
+    booksRouter = registerBooksRoutes(express.Router(), { requireAdmin, controller: booksController });
+    registerBookSearchRoutes(booksRouter, { controller: booksController });
+  }
   api.use('/books', booksRouter);
 
   // 6. JSON 404 for the rest of /api.

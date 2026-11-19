@@ -12,5 +12,15 @@ export function createBooksController({ service }) {
         next(error);
       }
     },
+
+    /** GET /api/books?q= (público, HU-006) */
+    search(req, res, next) {
+      try {
+        const { books, total } = service.searchBooks(req.query.q);
+        res.json({ data: books, meta: { total } });
+      } catch (error) {
+        next(error);
+      }
+    },
   };
 }
