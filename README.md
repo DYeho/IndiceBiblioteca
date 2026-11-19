@@ -4,8 +4,8 @@ Catálogo digital para una biblioteca estudiantil. La Administración registra y
 mantiene los libros; los estudiantes los buscan y ven en qué estante están, sin
 necesidad de cuenta.
 
-> **Estado:** en fundación. Por ahora solo existe la documentación; todavía no
-> hay aplicación ejecutable.
+> **Estado:** en desarrollo. Ya funciona el inicio de sesión de la
+> Administración (HU-001); el catálogo de libros todavía no está implementado.
 
 ## Para quién es
 
@@ -50,8 +50,51 @@ hasta que la Administración lo elimine.
 
 ## Cómo ejecutarlo
 
-Aún no hay nada que ejecutar. Las instrucciones se agregarán cuando existan los
-archivos base y el servidor.
+Requisitos: Node.js 22 o superior.
+
+1. Instalar dependencias:
+
+   ```sh
+   npm install
+   ```
+
+2. Copiar `.env.example` a `.env` y completar `SESSION_SECRET` con un texto
+   aleatorio de al menos 32 caracteres. Por ejemplo:
+
+   ```sh
+   node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+   ```
+
+3. Crear al menos una cuenta de Administración (ver la sección siguiente).
+
+4. Iniciar el servidor:
+
+   ```sh
+   npm start        # o "npm run dev" para reiniciar al guardar cambios
+   ```
+
+   La aplicación queda en `http://localhost:3000` y el inicio de sesión en
+   `http://localhost:3000/login.html`.
+
+### Crear una cuenta de Administración
+
+La aplicación no permite registrar cuentas. Se crean manualmente en el servidor
+con este comando:
+
+```sh
+npm run create-admin -- <nombre-de-usuario>
+```
+
+El comando pide la contraseña dos veces sin mostrarla en pantalla y guarda solo
+su hash. Reglas:
+
+- Nombre de usuario: de 3 a 50 caracteres. Se guarda en minúsculas y sin
+  espacios al inicio ni al final.
+- Contraseña: de 8 a 72 caracteres.
+- No puede haber dos cuentas con el mismo nombre de usuario.
+
+Todas las cuentas tienen los mismos permisos. La base de datos se crea en la
+ruta indicada en `DATABASE_PATH` (por defecto `data/library.sqlite`).
 
 ## Documentación
 

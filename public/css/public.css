@@ -31,3 +31,22 @@
   max-width: 26rem;
   margin-inline: auto;
 }
+
+/* Student area styles and the login page. */
+.auth-card {
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.auth-card .btn-primary {
+  width: 100%;
+}
+
+.auth-links {
+  margin: var(--space-4) 0 0;
+  text-align: center;
+}
