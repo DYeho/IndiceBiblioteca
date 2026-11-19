@@ -1,16 +1,11 @@
+import { validationError, conflict } from '../../utils/errors.js';
+
 const MAX_TITLE_LENGTH = 200;
 const MAX_AUTHOR_LENGTH = 150;
 const MAX_DESCRIPTION_LENGTH = 2000;
 const MIN_BOOK_QUANTITY = 1;
 const MAX_BOOK_QUANTITY = 999;
 const DUPLICATE_MESSAGE = 'Ese libro ya existe. Edite el libro existente.';
-
-function businessError(code, message, fields) {
-  const error = new Error(message);
-  error.code = code;
-  if (fields) error.fields = fields;
-  return error;
-}
 
 function characterCount(value) {
   return Array.from(value).length;
@@ -70,11 +65,11 @@ export function createBooksService({ repository, normalizeText }) {
       }
 
       if (Object.keys(fields).length > 0) {
-        throw businessError('VALIDATION_ERROR', 'Los datos del libro no son válidos.', fields);
+        throw validationError('Los datos del libro no son válidos.', fields);
       }
 
       if (repository.findByNormalizedKey(titleNormalized, authorNormalized)) {
-        throw businessError('CONFLICT', DUPLICATE_MESSAGE);
+        throw conflict(DUPLICATE_MESSAGE);
       }
 
       try {
@@ -88,7 +83,7 @@ export function createBooksService({ repository, normalizeText }) {
         });
       } catch (error) {
         if (error?.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-          throw businessError('CONFLICT', DUPLICATE_MESSAGE);
+          throw conflict(DUPLICATE_MESSAGE);
         }
         throw error;
       }

@@ -3,10 +3,7 @@ import test from 'node:test';
 import { createBooksService } from '../../src/modules/books/books.service.js';
 import { createBooksController } from '../../src/modules/books/books.controller.js';
 import { registerBooksRoutes } from '../../src/modules/books/books.routes.js';
-
-function normalizeText(value) {
-  return value.trim().replace(/\s+/gu, ' ').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
-}
+import { normalizeText } from '../../src/utils/normalize-text.js';
 
 function createMemoryRepository() {
   const books = [];
