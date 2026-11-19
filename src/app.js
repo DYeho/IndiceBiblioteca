@@ -11,6 +11,10 @@ import { createAuthController } from './modules/auth/auth.controller.js';
 import { createAuthRepository } from './modules/auth/auth.repository.js';
 import { createAuthRouter } from './modules/auth/auth.routes.js';
 import { createAuthService } from './modules/auth/auth.service.js';
+import { createBooksController } from './modules/books/books.controller.js';
+import { createBooksRepository } from './modules/books/books.repository.js';
+import { createBooksRouter } from './modules/books/books.routes.js';
+import { createBooksService } from './modules/books/books.service.js';
 
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 
@@ -52,7 +56,7 @@ export function createApp({ config, db }) {
   app.use(sessionMiddleware);
   app.locals.sessionStore = sessionStore;
 
-  // Composición de módulos (routes -> controller -> service -> repository).
+  // Composición de módulos (routes → controller → service → repository).
   const authRepository = createAuthRepository(db);
   const authService = createAuthService({ authRepository, bcryptCost: config.bcryptCost });
   const requireAdmin = createRequireAdmin(authRepository);
@@ -60,6 +64,12 @@ export function createApp({ config, db }) {
     authController: createAuthController({ authService, cookieSecure: config.isProduction }),
     loginLimiter: createLoginLimiter(),
     requireAdmin,
+  });
+
+  const booksRepository = createBooksRepository(db);
+  const booksService = createBooksService({ booksRepository });
+  const booksRouter = createBooksRouter({
+    booksController: createBooksController({ booksService }),
   });
 
   // 4 a 6. API.
@@ -72,6 +82,7 @@ export function createApp({ config, db }) {
   api.use(verifyOriginAndContentType(config));
   api.use(createApiLimiter());
   api.use('/auth', authRouter);
+  api.use('/books', booksRouter);
   api.use(apiNotFound);
   app.use('/api', api);
 
