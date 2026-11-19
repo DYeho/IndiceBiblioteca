@@ -60,6 +60,7 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
   const session = createSessionMiddleware(env, sessionOptions);
   app.use(session.middleware);
 
+  // Module composition (routes → controller → service → repository).
   const authRepository = createAuthRepository(db);
   const authService = createAuthService({ repository: authRepository, bcryptCost });
   const { requireAdmin, adminPageGuard } = createAuthMiddleware({ authRepository });
@@ -85,6 +86,7 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
       loginLimiter,
     })
   );
+  // GET /api/books (public search, HU-006) and POST /api/books (admin registration, HU-002).
   const booksRouter = routers.books ?? registerBooksRoutes(express.Router(), {
     requireAdmin,
     controller: createBooksController({
