@@ -85,7 +85,7 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | D. HU-006 | T-23 | `feature/HU-006-clean` | En Curso (pruebas PC escritas, sin ejecutar) |
 | E. Cierre | T-24, T-25 | `feature/SPRINT-001` | Terminada |
 | E. Cierre | T-26 | `feature/SPRINT-001` | En Curso (la Definition of Done está en Parcial) |
-| Documentación | T-00 | `docs/spec-001` | En Curso (hasta aplicar los ajustes documentales) | 
+| Documentación | T-00 | `docs/spec-001` | Terminada | 
 
 ## 5. Orden sugerido
 
