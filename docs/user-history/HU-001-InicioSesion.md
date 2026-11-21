@@ -37,6 +37,11 @@ Como administrador de biblioteca, quiero iniciar sesión en el sistema, para que
 **Y cuando** la sesión vence o deja de ser válida,
 **entonces** el sistema vuelve a exigirle iniciar sesión.
 
+### CA-007-Cierre de sesión
+**Dado** que el administrador tiene una sesión válida,
+**cuando** elige cerrar sesión,
+**entonces** el sistema destruye la sesión, borra la cookie y lo lleva a la página de inicio de sesión; al abrir de nuevo el área de administración, exige iniciar sesión.
+
 ## Reglas del Negocio
 RN-001: Solo existen cuentas de Administración. Se crean mediante un procedimiento técnico manual, fuera de la aplicación. La aplicación no permite registrar cuentas.
 RN-002: Puede haber varias cuentas de Administración y todas tienen los mismos permisos.
@@ -44,17 +49,16 @@ RN-003: Las contraseñas se almacenan únicamente como hash (bcryptjs). Nunca se
 RN-004: La autenticación usa sesiones con cookies, no JWT. La cookie es `HttpOnly`, `Secure` en producción y con una política `SameSite` adecuada.
 RN-005: Ante credenciales incorrectas, el mensaje de error es siempre el mismo, sin revelar si el usuario existe o si falló la contraseña.
 RN-006: Los datos del formulario se validan en el backend. El control de acceso se aplica en el backend y no depende de ocultar elementos en la interfaz.
-RN-007: Las solicitudes de inicio de sesión están sujetas a limitación de solicitudes (express-rate-limit). El umbral se define en la implementación.
+RN-007: Las solicitudes de inicio de sesión están sujetas a limitación de solicitudes (express-rate-limit). El umbral es de 5 intentos fallidos por IP cada 15 minutos.
 
 ## Dependencias
 * SPEC-000-foundation v2.0 (stack, estructura, seguridad y convenciones).
 * Esta historia no depende de otras historias de usuario. Las demás historias de administración (registrar, editar y eliminar libros) dependen de esta.
-* Debe existir al menos una cuenta de Administración creada manualmente en la base de datos. El procedimiento para crearla no está definido todavía.
-* Tablas en SQLite para las cuentas de Administración y para las sesiones.
+* Debe existir al menos una cuenta de Administración, creada con el script `scripts/create-admin.js`.
+* Tabla `administrators` en SQLite para las cuentas. Las sesiones se guardan en `data/sessions.sqlite`, gestionadas por `connect-sqlite3`, fuera de `schema.sql`.
 
 ## Fuera de Alcance
 * Registro de cuentas de Administración desde la interfaz.
-* Cierre de sesión (pendiente de decisión).
 * Recuperación o cambio de contraseña.
 * Gestión de cuentas (crear, desactivar o eliminar cuentas) y roles o permisos diferenciados.
 * Autenticación de dos factores, autenticación externa y la opción "recordarme".

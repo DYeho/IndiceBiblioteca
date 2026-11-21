@@ -4,12 +4,10 @@
 |---|---|
 | **Proyecto** | Índice Biblioteca |
 | **Sprint** | 1 |
-| **Especificación** | SPEC-001-acceso-registro-busqueda (v0.1, borrador) |
+| **Especificación** | SPEC-001-acceso-registro-busqueda |
 | **Base técnica** | SPEC-000-foundation v2.1 |
 | **Fecha de creación** | 07/11/2026 |
-| **Inicio / fin** | Por definir |
-
-Este es el único documento que se actualiza durante el sprint. El diseño técnico está en SPEC-001 y no cambia con el avance.
+| **Inicio / fin** | 10/11/2026 - 19/11/2026 |
 
 ## 1. Objetivo del sprint
 
@@ -29,9 +27,9 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 
 | HU | Nombre | Estado | Observación |
 |---|---|---|---|
-| HU-001 | Inicio de sesión | Pendiente | Incluye cierre de sesión (CA-007 propuesto, D-04). |
-| HU-002 | Registrar libro físico | Pendiente | |
-| HU-006 | Búsqueda de libros por nombre o autor | Pendiente | CA-009 y CA-010 quedan parcialmente verificados (D-02). Se cierran en el Sprint 2. |
+| HU-001 | Inicio de sesión | Terminada | Incluye cierre de sesión (CA-007 propuesto, D-04). |
+| HU-002 | Registrar libro físico | Terminada | |
+| HU-006 | Búsqueda de libros por nombre o autor | Terminada | CA-009 y CA-010 quedan parcialmente verificados (D-02). En el Sprint 2 se completan «Editar» y «Eliminar»; «Ver información» llega con la capacidad 7. |
 
 **Fuera del sprint:** HU-003, HU-004, HU-005, HU-008, HU-009 y la capacidad 7.
 
@@ -72,6 +70,23 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | T-25 | `README.md`: instalación, `.env`, `db:init`, `admin:create`, `dev` y pruebas. | Todas | T-14 | `docs/readme` | Pendiente |
 | T-26 | Revisión de la Definition of Done, commits convencionales en inglés y merge a `develop`. | Todas | T-24, T-25 | `develop` | Pendiente |
 
+
+### 4.1. Resumen por bloque
+
+| Bloque | Tareas | Rama | Estado |
+|---|---|---|---|
+| A. Andamiaje | T-01 a T-05, T-07 | `feature/inicio-session` | Terminada |
+| A. Andamiaje | T-06 | `feature/inicio-session` | En Curso (pruebas PN escritas, sin ejecutar) |
+| B. HU-001 | T-08 a T-12, T-14 | `feature/inicio-session` | Terminada |
+| B. HU-001 | T-13 | `feature/inicio-session` | En Curso (pruebas PA escritas, sin ejecutar) |
+| C. HU-002 | T-15 a T-17 | `feature/HU-002` | Terminada |
+| C. HU-002 | T-18 | `feature/HU-002` | En Curso (pruebas PB escritas, sin ejecutar) |
+| D. HU-006 | T-19 a T-22 | `feature/HU-006-clean` | Terminada |
+| D. HU-006 | T-23 | `feature/HU-006-clean` | En Curso (pruebas PC escritas, sin ejecutar) |
+| E. Cierre | T-24, T-25 | `feature/SPRINT-001` | Terminada |
+| E. Cierre | T-26 | `feature/SPRINT-001` | En Curso (la Definition of Done está en Parcial) |
+| Documentación | T-00 | `docs/spec-001` | En Curso (hasta aplicar los ajustes documentales) | 
+
 ## 5. Orden sugerido
 
 1. T-00 (en paralelo con T-01).
@@ -81,23 +96,61 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 5. Bloque D (HU-006).
 6. Bloque E.
 
-## 6. Pendientes por confirmar antes de empezar
+## 6. Decisiones confirmadas
 
-| ID | Pendiente | Bloquea |
+| ID | Tema | Decisión | Fecha | Quién confirmó | Impacto |
+|---|---|---|---|---|---|
+| D-12 | Contraseña validada también en bytes UTF-8 (máx. 72). | [Confirmada] | [14/11/2026] | [Nestor] | T-08 |
+| D-13 | Variables con `process.loadEnvFile()`, sin `dotenv`. | [Confirmada] | [14/11/2026] | [Nestor] | T-02 |
+| — | Aprobación de SPEC-001. | [Aprobada en versión 0.1] | [07/11/2026] | [David] | Todo el sprint |
+
+## 7. Riesgos y su desenlace
+
+| Riesgo | Mitigación prevista | Se materializó | Desenlace |
+|---|---|---|---|
+| Módulos nativos (`better-sqlite3`, `sqlite3`) sin binarios para el Node.js LTS vigente. | Verificar en T-01 antes de fijar `engines`. | [No] | Se usó Node.js v22.15.1. La aplicación arranca con `npm run dev`, lo que implica que ambos módulos cargan. [Pega la salida de `npm ls better-sqlite3 sqlite3` si la ejecutaste.] |
+| CA-009 y CA-010 de HU-006 no se pueden cerrar sin las acciones del Sprint 2. | Cierre parcial documentado (D-02). | [No] | Cierre parcial documentado (D-02). V-21 y V-22 ejecutados el 19/11/2026. «Editar» y «Eliminar» se completan en el Sprint 2 y «Ver información» con la capacidad 7. |
+| Agotado y sin estante no se producen desde la interfaz del Sprint 1. | Datos sembrados en T-23 y V-20. | [No] | [Cómo se prepararon los datos de agotado y sin estante en V-20.] |
+| Coste de `bcryptjs` (JavaScript puro) en el servidor. | Factor de coste configurable. | [No] | [Factor de coste usado y, si se midió, el tiempo de login.] |
+
+## 8. Criterio de cierre y resultado
+
+### 8.1. Criterio
+El Sprint 1 se da por cerrado cuando HU-001 y HU-002 están **Terminadas**, HU-006 está **Terminada** salvo la verificación completa de CA-009 y CA-010 (documentada para el Sprint 2), y se cumplió la Definition of Done aplicable de SPEC-000 §7.
+
+### 8.2. Resultado por historia
+
+| HU | Estado final | Evidencia |
 |---|---|---|
-| D-12 | Validar la contraseña también en bytes UTF-8 (máximo 72). | T-08 |
-| D-13 | Leer variables con `process.loadEnvFile()` y no agregar `dotenv`. | T-02 |
-| — | Aprobación de SPEC-001. | Todo el Bloque A en adelante |
+| HU-001 | [Terminada] | verificación manual V-01 a V-08 (19/11/2026). Pruebas automatizadas PA: no ejecutadas. |
+| HU-002 | [Terminada] | verificación manual V-09 a V-14 (19/11/2026). Pruebas automatizadas PB: no ejecutadas. |
+| HU-006 | [Terminada, salvo CA-009 y CA-010 parciales] | verificación manual V-15 a V-22 (19/11/2026). Pruebas automatizadas PC: no ejecutadas. |
 
-## 7. Riesgos
+### 8.3. Pruebas automatizadas
+No ejecutado. Los archivos de prueba existen en `tests/`, pero no se ejecutaron. La verificación se hizo manualmente con `npm run dev` el 19/11/2026, en la rama `feature/HU-006-clean`.
 
-| Riesgo | Mitigación |
-|---|---|
-| Módulos nativos (`better-sqlite3`, `sqlite3`) sin binarios para el Node.js LTS vigente. | Verificarlo en T-01 antes de fijar `engines`. |
-| CA-009 y CA-010 de HU-006 no se pueden cerrar sin las acciones del Sprint 2. | Cierre parcial documentado (D-02). |
-| Agotado y sin estante no se producen desde la interfaz del Sprint 1. | Datos sembrados en pruebas (T-23) y preparación de datos de desarrollo en V-20. |
-| Coste de `bcryptjs` (JavaScript puro) en el servidor. | El factor de coste es un valor de configuración ajustable. |
+### 8.4. Verificación manual (SPEC-001 §10)
+| Paso | Resultado | Ejecutó | Fecha | Observación |
+|---|---|---|---|---|
+| V-01 … V-28 | [Cumple] | David | 19/11/2026 | Verificación manual con npm run dev |
 
-## 8. Criterio de cierre del sprint
+### 8.5. Definition of Done (SPEC-000 §7)
+| Apartado | Cumple | Observación |
+|---|---|---|
+| §7.1 Código | [Sí] | |
+| §7.2 Calidad | [Si] | |
+| §7.3 Seguridad | [Si] | |
+| §7.4 Base de datos | [Si] | |
+| §7.5 Interfaz | [Si] | |
+| §7.6 Documentación y Git | [Parcial] | |
+
+### 8.6. Excepción declarada
+HU-006 CA-009 y CA-010: parcialmente verificadas (D-02). En el Sprint 2 se completan «Editar» y «Eliminar». «Ver información» queda pendiente hasta la capacidad 7.
+
+### 8.7. Pendiente para el Sprint 2
+
+- Ejecutar con `npm test` las pruebas automatizadas (PN, PA, PB y PC), ya escritas, y registrar el resultado.
+- Aplicar los ajustes documentales de T-00 (SPEC-000, HU-003, HU-004 y HU-006).
+- Completar «Editar» y «Eliminar» de HU-006 CA-010 (Sprint 2) y «Ver información» (capacidad 7).
 
 El Sprint 1 se da por cerrado cuando HU-001 y HU-002 están **Terminadas**, HU-006 está **Terminada** salvo la verificación completa de CA-009 y CA-010 (documentada para el Sprint 2), y se cumplió la Definition of Done aplicable de SPEC-000 §7.

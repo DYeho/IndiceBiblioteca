@@ -52,7 +52,7 @@ RN-003: La etiqueta la elige libremente la Administración. El sistema no la val
 RN-004: Un libro tiene como máximo un estante a la vez. Asignar uno nuevo reemplaza el anterior y no modifica ningún otro dato del libro (título, autor, descripción ni cantidad).
 RN-005: Un mismo estante puede contener varios libros. No se exige que la etiqueta sea única entre libros.
 RN-006: Un libro está "sin estante" mientras no tenga etiqueta asignada. Todo libro recién registrado (HU-002) está sin estante. Cada libro aparece en exactamente una de las dos listas: sin estante o con estante asignado, sea cual sea su cantidad (incluido 0).
-RN-007: Las validaciones se ejecutan en el backend. Los espacios al inicio y al final se eliminan antes de guardar. La longitud máxima de la etiqueta se define en la especificación del modelo de datos.
+RN-007: Las validaciones se ejecutan en el backend. Los espacios al inicio y al final se eliminan antes de guardar. La longitud máxima de la etiqueta es de 30 caracteres.
 
 ## Dependencias
 * SPEC-000-foundation v2.0 (stack, estructura, seguridad y convenciones).

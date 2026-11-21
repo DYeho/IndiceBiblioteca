@@ -23,7 +23,7 @@ Como administrador de biblioteca, quiero registrar un nuevo libro con título, a
 ### CA-004-Cantidad inválida
 **Dado** que el administrador está en el formulario de registro de libros,
 **cuando** ingresa una cantidad de 0, negativa, con decimales o que no sea un número,
-**entonces** el sistema no guarda el libro e indica que la cantidad inicial debe ser un número entero de 1 o más.
+**entonces** el sistema no guarda el libro e indica que la cantidad inicial debe ser un número entero entre 1 y 999.
 
 ### CA-005-Registro restringido a la Administración
 **Dado** que el usuario no ha iniciado sesión o su sesión no es válida,
@@ -44,23 +44,22 @@ Como administrador de biblioteca, quiero registrar un nuevo libro con título, a
 RN-001: Solo la Administración con sesión válida puede registrar libros (ver HU-001).
 RN-002: El título y el autor son obligatorios y deben tener contenido tras eliminar los espacios al inicio y al final.
 RN-003: La descripción es opcional y es texto libre escrito por la Administración.
-RN-004: Al registrar se indica una cantidad inicial, obligatoria y entera, de 1 o más. Esa cantidad se puede modificar después con la funcionalidad de editar libros (incluido el valor 0).
+RN-004: Al registrar se indica una cantidad inicial, obligatoria y entera, de 1 a 999. Esa cantidad se puede modificar después con la funcionalidad de editar libros (incluido el valor 0).
 RN-005: Cada registro representa un título con su cantidad de ejemplares. No se crea un registro por cada ejemplar físico.
-RN-006: Las validaciones se ejecutan en el backend. La base de datos impide además cantidades negativas.
-RN-007: Los espacios al inicio y al final de los textos se eliminan antes de guardar. Los límites de longitud de cada campo se definen en la especificación del modelo de datos.
-RN-008: No pueden existir dos libros con el mismo título y autor. La comparación no distingue mayúsculas de minúsculas y omite los espacios al inicio y al final. La equivalencia de tildes no se aplica aquí.
+RN-006: Las validaciones se ejecutan en el backend. La base de datos impide además cantidades fuera del rango de 0 a 999.
+RN-007: Los espacios al inicio y al final de los textos se eliminan antes de guardar. Los límites de longitud son: título 200 caracteres, autor 150 y descripción 2000.
+RN-008: No pueden existir dos libros con el mismo título y autor. La comparación no distingue mayúsculas, tildes ni espacios sobrantes al inicio, al final o repetidos dentro del texto.
 
 ## Dependencias
 * SPEC-000-foundation v2.0 (stack, estructura, seguridad y convenciones).
 * HU-001-Inicio de sesión (el registro exige una sesión de Administración válida).
 * Tabla `books` en SQLite, cuyos campos definitivos se fijarán en la especificación del modelo de datos.
-* HU-006-Búsqueda de libros por nombre o autor y la historia de información del libro (capacidad 7) muestran el estante asignado con esta historia.
+* HU-006-Búsqueda de libros por nombre o autor y la historia de información del libro (capacidad 7) muestran el estante asignado con HU-003-Organizar libros por estante.
 
 ## Fuera de Alcance
 * Asignar o cambiar el estante del libro (capacidad 3, historia aparte).
 * Editar la cantidad u otros datos del libro y eliminar libros (capacidades 4 y 5).
 * Búsqueda y consulta de libros (capacidades 6 y 7).
 * Digitalización de descripción, sinopsis o índice mediante escaneo (capacidad 8).
-* Equivalencia de tildes al comparar duplicados.
 * Campos adicionales como ISBN, editorial, año, categoría o portada.
 * Registro de varios libros a la vez o importación desde archivos.
