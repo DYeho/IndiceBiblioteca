@@ -49,17 +49,19 @@ Como administrador de biblioteca o estudiante, quiero buscar un libro por títul
 **Dado** que un estudiante, sin cuenta ni sesión, está en la página pública de búsqueda,
 **cuando** busca y ve los resultados,
 **entonces** cada resultado le ofrece únicamente la opción "Ver información". No ve las opciones "Editar" ni "Eliminar".
+*Nota:* en el Sprint 1 se verifica que el estudiante nunca vea "Editar" ni "Eliminar". La opción "Ver información" se completa con la capacidad 7.
 
 ### CA-010-Búsqueda del administrador
 **Dado** que el administrador tiene una sesión válida y está en su página de búsqueda dentro del área de administración,
 **cuando** busca y ve los resultados,
 **entonces** se aplican las mismas reglas de búsqueda y cada resultado le ofrece las opciones "Ver información", "Editar" y "Eliminar".
+*Nota:* en el Sprint 1 el administrador ve el contenedor de acciones vacío. "Editar" y "Eliminar" se completan en el Sprint 2 (HU-004 y HU-005) y "Ver información" con la capacidad 7.
 
 ## Reglas del Negocio
 RN-001: La búsqueda es de solo lectura y no modifica ningún dato. Cualquier persona puede buscar sin cuenta ni sesión. El administrador usa una página de búsqueda propia dentro del área de administración, que exige sesión válida (ver HU-001).
 RN-002: Un único campo de texto busca en el título y en el autor. Un libro coincide si el texto buscado aparece en cualquiera de los dos.
-RN-003: La coincidencia es parcial y no distingue mayúsculas ni tildes. Los espacios al inicio y al final del texto se ignoran. El texto se busca como una frase y los caracteres especiales se tratan como texto normal. Esta regla de coincidencia es distinta de la de duplicados (HU-002 y HU-004), que no equipara tildes.
-RN-004: Un texto vacío o formado solo por espacios no ejecuta la búsqueda y no devuelve el catálogo. La validación se ejecuta en el backend. La longitud máxima del texto se define en la implementación.
+RN-003: La coincidencia es parcial y no distingue mayúsculas ni tildes. Los espacios al inicio y al final del texto se ignoran. El texto se busca como una frase y los caracteres especiales se tratan como texto normal. La búsqueda y la regla de duplicados (HU-002 y HU-004) usan la misma normalización: ninguna distingue mayúsculas, tildes ni espacios sobrantes.
+RN-004: Un texto vacío o formado solo por espacios no ejecuta la búsqueda y no devuelve el catálogo. La validación se ejecuta en el backend. La longitud máxima del texto es de 200 caracteres.
 RN-005: Cada resultado muestra título, autor, cantidad y estante. Muestra la marca "agotado" cuando la cantidad es 0 y el texto "Estante no asignado" cuando no tiene estante. Los libros agotados o sin estante siempre pueden aparecer en los resultados.
 RN-006: Los resultados se ordenan alfabéticamente por título, sin distinguir mayúsculas ni tildes, y por autor cuando los títulos coinciden. En el MVP no hay paginación ni límite de resultados.
 RN-007: "Ver información" está disponible para todos. "Editar" y "Eliminar" solo se muestran a la Administración con sesión válida, y el backend rechaza igualmente cualquier intento de editar o eliminar sin sesión (ver HU-004 y HU-005).
