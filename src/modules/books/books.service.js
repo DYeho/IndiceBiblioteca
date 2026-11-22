@@ -1,4 +1,4 @@
-import { validationError, conflict } from '../../utils/errors.js';
+import { validationError, conflict, notFound } from '../../utils/errors.js';
 
 const MAX_TITLE_LENGTH = 200;
 const MAX_AUTHOR_LENGTH = 150;
@@ -8,6 +8,24 @@ const MAX_BOOK_QUANTITY = 999;
 const DUPLICATE_MESSAGE = 'Ese libro ya existe. Edite el libro existente.';
 
 export const MAX_SEARCH_LENGTH = 200; // D-06
+export const MAX_SHELF_LABEL_LENGTH = 30; // RN-S03
+
+const SHELF_STATUSES = new Set(['unassigned', 'assigned']);
+const SHELF_STATUS_MESSAGE = 'Indique si desea los libros sin estante o con estante.';
+const BOOK_NOT_FOUND_MESSAGE = 'El libro no existe.';
+const SHELF_MESSAGES = {
+  required: 'El estante es obligatorio.',
+  notText: 'El estante debe ser texto.',
+  tooLong: `El estante no puede superar ${MAX_SHELF_LABEL_LENGTH} caracteres.`,
+};
+
+// D-20: an identifier that is not a positive integer is treated as a book that does not exist.
+function parseBookId(rawId) {
+  const value = typeof rawId === 'number' ? String(rawId) : rawId;
+  if (typeof value !== 'string' || !/^[1-9]\d*$/.test(value)) return null;
+  const id = Number(value);
+  return Number.isSafeInteger(id) ? id : null;
+}
 
 const SEARCH_MESSAGES = {
   required: 'Escriba un título o autor para buscar.',
@@ -95,6 +113,55 @@ export function createBooksService({ repository, normalizeText }) {
         }
         throw error;
       }
+    },
+
+    /**
+     * HU-003: lista los libros sin estante (`unassigned`) o con estante (`assigned`) (SPEC-002 §6.1).
+     * @param {unknown} rawStatus valor de req.query.status (puede ser undefined o un arreglo)
+     * @returns {{ books: object[], total: number }}
+     */
+    listShelfAssignments(rawStatus) {
+      if (typeof rawStatus !== 'string' || !SHELF_STATUSES.has(rawStatus)) {
+        throw validationError(SHELF_STATUS_MESSAGE, { status: SHELF_STATUS_MESSAGE });
+      }
+      const books = rawStatus === 'unassigned' ? repository.listUnassigned() : repository.listAssigned();
+      return { books, total: books.length };
+    },
+
+    /**
+     * HU-003: asigna o cambia el estante de un libro (SPEC-002 §6.2).
+     * Orden de comprobaciones (D-21): existencia del libro, validación, escritura.
+     * @param {unknown} rawId identificador de la ruta
+     * @param {unknown} input cuerpo de la solicitud
+     * @returns {object} el libro completo con el estante guardado
+     */
+    assignShelf(rawId, input) {
+      const id = parseBookId(rawId);
+      if (id === null || repository.findById(id) === null) {
+        throw notFound(BOOK_NOT_FOUND_MESSAGE);
+      }
+
+      const values = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
+      const raw = values.shelfLabel;
+      let message = null;
+      let shelfLabel = '';
+      if (raw === undefined || raw === null) {
+        message = SHELF_MESSAGES.required;
+      } else if (typeof raw !== 'string') {
+        message = SHELF_MESSAGES.notText;
+      } else {
+        shelfLabel = raw.trim();
+        if (shelfLabel === '') message = SHELF_MESSAGES.required;
+        else if (characterCount(shelfLabel) > MAX_SHELF_LABEL_LENGTH) message = SHELF_MESSAGES.tooLong;
+      }
+      if (message) {
+        throw validationError('El estante no es válido.', { shelfLabel: message });
+      }
+
+      // The book may have been deleted between the check and the write.
+      const book = repository.updateShelf(id, shelfLabel);
+      if (book === null) throw notFound(BOOK_NOT_FOUND_MESSAGE);
+      return book;
     },
 
     /**

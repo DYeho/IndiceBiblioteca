@@ -13,7 +13,8 @@ import { createAuthRouter } from './modules/auth/auth.routes.js';
 import { createBooksRepository } from './modules/books/books.repository.js';
 import { createBooksService } from './modules/books/books.service.js';
 import { createBooksController } from './modules/books/books.controller.js';
-import { registerBooksRoutes, registerBookSearchRoutes } from './modules/books/books.routes.js';
+import { registerBooksRoutes, registerBookSearchRoutes, registerBookShelfRoutes } from './modules/books/books.routes.js';
+import { registerShelfAssignmentsRoutes } from './modules/books/shelf-assignments.routes.js';
 import { normalizeText } from './utils/normalize-text.js';
 import { unauthenticated } from './utils/errors.js';
 
@@ -74,6 +75,13 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
       next(error?.code === 'UNAUTHENTICATED' ? unauthenticated('Debe iniciar sesión.') : error);
     });
   });
+  // HU-003: the session is checked before origin, content type and body, as in POST /books (SPEC-002 §6).
+  const requireAdminSession = (req, res, next) => {
+    requireAdmin(req, res, (error) => {
+      next(error?.code === 'UNAUTHENTICATED' ? unauthenticated('Debe iniciar sesión.') : error);
+    });
+  };
+  api.put('/books/:id/shelf', requireAdminSession);
   api.use(express.json({ limit: '16kb' }));
   api.use(verifyOriginAndContentType({ allowedOrigin: env.allowedOrigin }));
 
@@ -87,15 +95,21 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
     })
   );
   // POST /api/books (admin registration, HU-002) and GET /api/books (public search, HU-006).
+  const booksController = createBooksController({
+    service: createBooksService({ repository: createBooksRepository(db), normalizeText }),
+  });
   let booksRouter = routers.books;
   if (!booksRouter) {
-    const booksController = createBooksController({
-      service: createBooksService({ repository: createBooksRepository(db), normalizeText }),
-    });
     booksRouter = registerBooksRoutes(express.Router(), { requireAdmin, controller: booksController });
     registerBookSearchRoutes(booksRouter, { controller: booksController });
+    registerBookShelfRoutes(booksRouter, { requireAdmin: requireAdminSession, controller: booksController });
   }
   api.use('/books', booksRouter);
+  // GET /api/shelf-assignments (HU-003, admin only).
+  api.use(
+    '/shelf-assignments',
+    registerShelfAssignmentsRoutes(express.Router(), { requireAdmin: requireAdminSession, controller: booksController })
+  );
 
   // 6. JSON 404 for the rest of /api.
   api.use(notFoundApi);
