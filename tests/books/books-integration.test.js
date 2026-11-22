@@ -320,25 +320,29 @@ test('the server requires an initialized database and serves registration with t
     env: { ...process.env, NODE_ENV: 'test', PORT: String(port), DATABASE_PATH: app.env.databasePath, SESSIONS_DIR: app.env.sessionsDir, SESSIONS_DB: 'server-sessions.sqlite', SESSION_SECRET: app.env.sessionSecret, ALLOWED_ORIGIN: app.env.allowedOrigin },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  t.after(async () => {
-    if (server.exitCode === null) {
-      server.kill('SIGTERM');
+  try {
+    await Promise.race([
+      once(server.stdout, 'data'),
+      once(server, 'exit').then(([code]) => { throw new Error(`Server exited before listening: ${code}`); }),
+    ]);
+    const request = (path, body, cookie) => fetch(`http://127.0.0.1:${port}${path}`, {
+      method: 'POST',
+      headers: { Origin: app.env.allowedOrigin, 'Content-Type': 'application/json', ...(cookie ? { Cookie: cookie } : {}) },
+      body: JSON.stringify(body),
+    });
+    const login = await request('/api/auth/login', app.credentials);
+    assert.equal(login.status, 200);
+    const cookie = login.headers.get('set-cookie').split(';')[0];
+    const registered = await request('/api/books', validBook, cookie);
+    assert.equal(registered.status, 201);
+    assert.equal((await registered.json()).data.title, validBook.title);
+  } finally {
+    // Stop the child server before the temporary directory is removed. The hooks registered
+    // with t.after run in registration order, so app.close() (from setup) would run first and
+    // try to delete files that the child process still has open (EBUSY on Windows).
+    if (server.exitCode === null && server.signalCode === null) {
+      server.kill();
       await once(server, 'exit');
     }
-  });
-  await Promise.race([
-    once(server.stdout, 'data'),
-    once(server, 'exit').then(([code]) => { throw new Error(`Server exited before listening: ${code}`); }),
-  ]);
-  const request = (path, body, cookie) => fetch(`http://127.0.0.1:${port}${path}`, {
-    method: 'POST',
-    headers: { Origin: app.env.allowedOrigin, 'Content-Type': 'application/json', ...(cookie ? { Cookie: cookie } : {}) },
-    body: JSON.stringify(body),
-  });
-  const login = await request('/api/auth/login', app.credentials);
-  assert.equal(login.status, 200);
-  const cookie = login.headers.get('set-cookie').split(';')[0];
-  const registered = await request('/api/books', validBook, cookie);
-  assert.equal(registered.status, 201);
-  assert.equal((await registered.json()).data.title, validBook.title);
+  }
 });

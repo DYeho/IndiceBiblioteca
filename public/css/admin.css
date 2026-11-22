@@ -1,15 +1,14 @@
 /* ==========================================================================
    admin.css
    Estilos propios del área de Administración (admin/index.html).
-   Solo lo que no es reutilizable: lo común vive en base.css, layout.css
-   y components.css. Usa únicamente tokens (var(--...)).
+   Usa únicamente tokens (var(--...)).
    ========================================================================== */
 
 /* 1. Barra superior del catálogo: título y botón "Registrar libro" -------- */
 .admin-toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;  
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-2) var(--space-3);
 }
@@ -21,21 +20,24 @@
   gap: var(--space-2);
 }
 
-/* Administration area styles. */
+/* 3. Navegación y secciones de administración ----------------------------- */
 .admin-nav {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.admin-nav .btn[aria-current="page"] {
+.admin-nav .btn[aria-current="page"],
+.admin-nav .button[aria-current="page"] {
   background: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-primary-contrast);
 }
 
 .admin-section {
   padding: var(--space-4);
   background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }

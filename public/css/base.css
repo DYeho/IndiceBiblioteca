@@ -1,33 +1,49 @@
 /* ==========================================================================
    base.css
    Tema de Índice Biblioteca: tokens, reset, elementos base y foco visible.
-   Estilo: "Biblioteca clara y sobria" (SPEC-000 §9).
+   Estilo: "Portal Oscuro / Bento Slate" (SPEC-000 §9).
    Los tokens solo se declaran aquí. Los demás CSS usan var(--...).
    ========================================================================== */
 
 /* 1. Tokens -------------------------------------------------------------- */
 :root {
-  /* Color */
-  --color-bg: #faf8f4;
-  --color-surface: #ffffff;
-  --color-text: #1f2933;
-  --color-text-muted: #52606d;
-  --color-border: #8a8578;
-  --color-primary: #1f4e79;
-  --color-primary-contrast: #ffffff;
-  --color-danger: #b3261e;
-  --color-success: #1e6b3a;
-  --color-warning: #7a4b00;
-  --color-warning-bg: #fff1d6;
-  --color-focus: #1f4e79;
-  --color-scheme: light;
+  /* Color - Paleta Dark Slate & Teal */
+  --color-bg: #0f172a;
+  --color-bg-elevated: #162033;
+  --color-surface: #1e293b;
+  --color-surface-hover: #263449;
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-border: #334155;
+  --color-border-subtle: rgba(148, 163, 184, 0.16);
+
+  /* Acentos */
+  --color-primary: #14b8a6;
+  --color-primary-hover: #2dd4bf;
+  --color-primary-contrast: #042f2e;
+  --color-primary-soft: rgba(20, 184, 166, 0.14);
+
+  --color-accent-amber: #fbbf24;
+  --color-accent-amber-bg: rgba(245, 158, 11, 0.14);
+  --color-accent-amber-border: rgba(245, 158, 11, 0.45);
+
+  /* Estados semánticos */
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(239, 68, 68, 0.14);
+  --color-success: #34d399;
+  --color-success-bg: rgba(16, 185, 129, 0.14);
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+
+  --color-focus: #2dd4bf;
+  --color-scheme: dark;
 
   /* Tipografía */
-  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.25rem;
-  --font-size-xl: 1.75rem;
+  --font-size-xl: 2rem;
   --line-height: 1.5;
 
   /* Espaciado */
@@ -35,16 +51,18 @@
   --space-2: 0.5rem;
   --space-3: 1rem;
   --space-4: 1.5rem;
-  --space-5: 2rem;
+  --space-5: 2.5rem;
 
-  /* Forma */
-  --radius: 8px;
-  --radius-sm: 6px;
-  --shadow: 0 1px 3px rgba(31, 41, 51, 0.12);
+  /* Forma y profundidad */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 9999px;
+  --shadow: 0 4px 20px rgba(2, 6, 23, 0.45);
+  --glow-primary: 0 0 24px rgba(20, 184, 166, 0.22);
 
   /* Layout y controles */
-  --container-max: 60rem;
-  --control-height: 2.75rem;
+  --container-max: 68rem;
+  --control-height: 2.85rem;
 }
 
 /* 2. Reset mínimo -------------------------------------------------------- */
@@ -95,25 +113,34 @@ textarea {
 /* 3. Elementos base ------------------------------------------------------ */
 html {
   font-size: 100%;
+  color-scheme: dark;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
 body {
   min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background-color: var(--color-bg);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(20, 184, 166, 0.12) 0%, transparent 52%),
+    linear-gradient(180deg, #0b1222 0%, var(--color-bg) 35%);
   color: var(--color-text);
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   line-height: var(--line-height);
+  -webkit-font-smoothing: antialiased;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.015em;
   line-height: 1.25;
+  color: var(--color-text);
 }
 
 h1 {
@@ -135,12 +162,14 @@ p + p {
 
 a {
   color: var(--color-primary);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
+  text-decoration: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 a:hover {
-  text-decoration-thickness: 2px;
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 small {
@@ -166,103 +195,12 @@ hr {
   padding: var(--space-2) var(--space-3);
   background-color: var(--color-primary);
   color: var(--color-primary-contrast);
+  font-weight: 600;
   border-radius: var(--radius-sm);
   transform: translateY(-200%);
+  transition: transform 0.15s ease;
 }
 
 .skip-link:focus {
   transform: translateY(0);
-}
-
-/* Design tokens (SPEC-000 §9.2), reset, base elements and visible focus. */
-:root {
-  --color-bg: #f4f6f8;
-  --color-surface: #ffffff;
-  --color-text: #1b1f24;
-  --color-text-muted: #4a5561;
-  --color-border: #8a96a3;
-  --color-primary: #1d4ed8;
-  --color-primary-contrast: #ffffff;
-  --color-danger: #b42318;
-  --color-success: #146c43;
-  --color-warning: #8a4b00;
-  --color-focus: #0b3fd1;
-
-  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.25rem;
-  --font-size-xl: 1.75rem;
-  --line-height: 1.5;
-
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 1rem;
-  --space-4: 1.5rem;
-  --space-5: 2rem;
-
-  --radius: 0.5rem;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-
-  --container-max: 60rem;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-family);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height);
-  color: var(--color-text);
-  background: var(--color-bg);
-}
-
-h1,
-h2,
-h3 {
-  margin: 0 0 var(--space-3);
-  line-height: 1.25;
-}
-
-h1 {
-  font-size: var(--font-size-xl);
-}
-
-h2 {
-  font-size: var(--font-size-lg);
-}
-
-p {
-  margin: 0 0 var(--space-3);
-}
-
-a {
-  color: var(--color-primary);
-}
-
-button,
-input,
-textarea {
-  font: inherit;
-}
-
-:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
-[hidden] {
-  display: none !important;
 }

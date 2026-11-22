@@ -117,10 +117,18 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 
 ### 8.4. Pruebas del Sprint 1 (deuda técnica, T-27)
 
-- Fecha, rama y commit:
-- Resultado (PN, PA, PB y PC):
-- Ejecutó:
-- Correcciones realizadas:
+- Fecha, rama y commit: 21/11/2026, feature/HU-003, resultado de `git rev-parse --short HEAD`
+- Resultado (PN, PA, PB y PC): 
+    - Primera ejecución (`npm test`): 63 pruebas, 61 pasan, 1 falla, 1 cancelada. Duración: 663.9 s.
+    - Segunda ejecución (`npm test -- --test-timeout=60000`), tras la corrección: 62 pruebas, 62 pasan, 0 fallan, 0 canceladas, 0 omitidas. Duración: 29.4 s.
+    - PN-01 a PN-06 (`normalize-text.test.js`): pasan.
+    - PB-01 a PB-16 (`books-integration.test.js`): pasan.
+    - PC: `search.test.js` tiene 4 pruebas de búsqueda que pasan. No están numeradas PC-01 a PC-15; no se verificó la correspondencia caso por caso.
+    - PA: no se ejecutaron. No existe `tests/auth/` ni pruebas PA-01 a PA-22 en el repositorio.
+    Algunos comportamientos de acceso están cubiertos de forma parcial por tres pruebas de
+    `books-integration.test.js`.
+- Ejecutó: Nestor Isaac Hernandez Duran
+- Correcciones realizadas: en `tests/books/books-integration.test.js`, la última prueba arrancaba un servidor hijo que seguía abierto cuando `app.close()` borraba la carpeta temporal. En Windows eso daba `EBUSY` sobre `library.sqlite-shm`. Se detiene ahora el servidor dentro de la propia prueba, con `try/finally`, antes de la limpieza. No hubo cambios en código de la aplicación.
 
 ### 8.5. Verificación manual (SPEC-002 §10)
 
