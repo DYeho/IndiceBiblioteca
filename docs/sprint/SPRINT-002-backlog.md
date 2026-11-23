@@ -29,7 +29,7 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 
 | HU | Nombre | Estado | Observación |
 |---|---|---|---|
-| HU-003 | Organizar libros por estante | Pendiente | |
+| HU-003 | Organizar libros por estante | Terminada | Backend, pruebas y codigo de la interfaz terminados; npm test pasa (84 de 84). |
 | HU-004 | Editar libros registrados | Pendiente | |
 | HU-005 | Eliminar libro | Pendiente | |
 | HU-006 | Búsqueda de libros por nombre o autor | Terminada (Sprint 1) | CA-010 se completa en parte: «Editar» y «Eliminar». CA-009 y CA-010 siguen parcialmente verificados hasta que exista «Ver información» (capacidad 7, D-27). |
@@ -43,13 +43,13 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | ID | Tarea | HU | Depende de | Rama | Estado |
 |---|---|---|---|---|---|
 | **Bloque A. Verificación previa** | | | | | |
-| T-27 | Ejecutar con `npm test` la suite completa del Sprint 1 (PN, PA, PB y PC) y registrar el resultado real en SPRINT-001-backlog §8.3. Si hay fallos, corregirlos antes de seguir. | Deuda Sprint 1 | | `develop` (solo ejecución); `feature/SPRINT-001` si hay correcciones | Pendiente |
-| T-28 | Verificar en `schema.sql` las restricciones `quantity` de 0 a 999, `shelf_label` de 1 a 30 (nulo permitido) y `UNIQUE` de título y autor normalizados. Si falta alguna, detener HU-003 y decidir cómo aplicarla (no hay ejecutor de migraciones). | HU-003, HU-004 | T-27 | `feature/HU-003` | Pendiente |
+| T-27 | Ejecutar con `npm test` la suite completa del Sprint 1 (PN, PA, PB y PC) y registrar el resultado real en SPRINT-001-backlog §8.3. Si hay fallos, corregirlos antes de seguir. | Deuda Sprint 1 | | `develop` (solo ejecución); `feature/SPRINT-001` si hay correcciones | Terminada |
+| T-28 | Verificar en `schema.sql` las restricciones `quantity` de 0 a 999, `shelf_label` de 1 a 30 (nulo permitido) y `UNIQUE` de título y autor normalizados. Si falta alguna, detener HU-003 y decidir cómo aplicarla (no hay ejecutor de migraciones). | HU-003, HU-004 | T-27 | `feature/HU-003` | Terminada |
 | **Bloque B. HU-003** | | | | | |
-| T-29 | `books.repository` y `books.service`: listas `unassigned` y `assigned`, asignación de estante, validación de la etiqueta y de `status`, y validación del identificador (D-20). | HU-003 | T-28 | `feature/HU-003` | Pendiente |
-| T-30 | Controlador y rutas: `GET /api/shelf-assignments` y `PUT /api/books/:id/shelf` con `requireAdmin`. Monta `/api/shelf-assignments` en `app.js`. | HU-003 | T-29 | `feature/shelf-assignment` | Pendiente |
-| T-31 | Interfaz: botón «Asignar estantes», sección con las dos listas, menú de tres puntos, estados y `aria-live` (`shelves.js`). Pasa `admin/index.html` a cuatro secciones y añade los estilos de menú y de fila de lista. | HU-003 | T-30 | `feature/HU-003` | Pendiente |
-| T-32 | Pruebas de asignación de estante (`tests/books/shelf.test.js`, PD-01 a PD-20), ejecutadas con `npm test`. | HU-003 | T-30 | `feature/HU-003` | Pendiente |
+| T-29 | `books.repository` y `books.service`: listas `unassigned` y `assigned`, asignación de estante, validación de la etiqueta y de `status`, y validación del identificador (D-20). | HU-003 | T-28 | `feature/HU-003` | Terminada |
+| T-30 | Controlador y rutas: `GET /api/shelf-assignments` y `PUT /api/books/:id/shelf` con `requireAdmin`. Monta `/api/shelf-assignments` en `app.js`. | HU-003 | T-29 | `feature/shelf-assignment` | Terminada |
+| T-31 | Interfaz: botón «Asignar estantes», sección con las dos listas, menú de tres puntos, estados y `aria-live` (`shelves.js`). Pasa `admin/index.html` a cuatro secciones y añade los estilos de menú y de fila de lista. | HU-003 | T-30 | `feature/HU-003` | Terminada |
+| T-32 | Pruebas de asignación de estante (`tests/books/shelf.test.js`, PD-01 a PD-20), ejecutadas con `npm test`. | HU-003 | T-30 | `feature/HU-003` | Terminada |
 | **Bloque C. HU-004** | | | | | |
 | T-33 | `books.repository` y `books.service`: lectura por identificador y edición (validación, duplicado excluyendo el propio libro, columnas normalizadas, `updated_at` según D-18). | HU-004 | T-29 | `feature/HU-004` | Pendiente |
 | T-34 | Controlador y rutas: `GET /api/books/:id` y `PUT /api/books/:id` con `requireAdmin`. | HU-004 | T-33 | `feature/HU-004` | Pendiente |
@@ -85,8 +85,8 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 
 | Riesgo | Mitigación | Se materializó | Desenlace |
 |---|---|---|---|
-| Las pruebas del Sprint 1 fallan al ejecutarse por primera vez, porque nunca se ejecutaron. | T-27 va primero. Los fallos se corrigen antes de empezar HU-003. | | |
-| Falta alguna restricción del esquema (`CHECK` de `shelf_label` o de `quantity`) y no existe ejecutor de migraciones. | T-28 verifica antes de HU-003. Si falta, se detiene el trabajo y se decide, sin improvisar un mecanismo. | | |
+| Las pruebas del Sprint 1 fallan al ejecutarse por primera vez, porque nunca se ejecutaron. | T-27 va primero. Los fallos se corrigen antes de empezar HU-003. | Si | Una prueba de books-integration.test.js fallo en Windows porque la carpeta temporal se borraba con el servidor hijo todavia abierto, y cancelo su archivo. Se corrigio antes de empezar HU-003. Resultado 62 de 62. |
+| Falta alguna restricción del esquema (`CHECK` de `shelf_label` o de `quantity`) y no existe ejecutor de migraciones. | T-28 verifica antes de HU-003. Si falta, se detiene el trabajo y se decide, sin improvisar un mecanismo. | No | T-28 verifico en schema.sql y con PB-12 las restricciones quantity de 0 a 999, shelf_label de 1 a 30 con nulo permitido y UNIQUE de titulo y autor autorizados. |
 | Eliminación accidental de datos reales por ser un borrado físico e irreversible. | Confirmación en la interfaz. Todas las verificaciones se hacen sobre la base de **desarrollo**. | | |
 | Dos cuentas de Administración editan el mismo libro a la vez (gana la última escritura, sin control de versiones). | Riesgo aceptado: no hay historial ni concurrencia en el alcance. Los casos de libro inexistente están cubiertos (404). | | |
 | Las listas de asignación no tienen paginación y pueden ser largas si el catálogo crece. | Aceptado para el catálogo escolar (HU-003 deja fuera la paginación). Se revisa si el catálogo crece. | | |
@@ -102,7 +102,7 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 
 | HU | Estado final | Evidencia |
 |---|---|---|
-| HU-003 | | |
+| HU-003 | Terminado | PD-01 a PD-20 y dos pruebas de refuerzo en tests/books/shelf.test.js, ejecutadas con npm test (84 de 84). |
 | HU-004 | | |
 | HU-005 | | |
 | HU-006 (CA-009 y CA-010, parcial) | | |
@@ -117,10 +117,18 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 
 ### 8.4. Pruebas del Sprint 1 (deuda técnica, T-27)
 
-- Fecha, rama y commit:
-- Resultado (PN, PA, PB y PC):
-- Ejecutó:
-- Correcciones realizadas:
+- Fecha, rama y commit: 21/11/2026, feature/HU-003, resultado de `git rev-parse --short HEAD`
+- Resultado (PN, PA, PB y PC): 
+    - Primera ejecución (`npm test`): 63 pruebas, 61 pasan, 1 falla, 1 cancelada. Duración: 663.9 s.
+    - Segunda ejecución (`npm test -- --test-timeout=60000`), tras la corrección: 62 pruebas, 62 pasan, 0 fallan, 0 canceladas, 0 omitidas. Duración: 29.4 s.
+    - PN-01 a PN-06 (`normalize-text.test.js`): pasan.
+    - PB-01 a PB-16 (`books-integration.test.js`): pasan.
+    - PC: `search.test.js` tiene 4 pruebas de búsqueda que pasan. No están numeradas PC-01 a PC-15; no se verificó la correspondencia caso por caso.
+    - PA: no se ejecutaron. No existe `tests/auth/` ni pruebas PA-01 a PA-22 en el repositorio.
+    Algunos comportamientos de acceso están cubiertos de forma parcial por tres pruebas de
+    `books-integration.test.js`.
+- Ejecutó: Nestor Isaac Hernandez Duran
+- Correcciones realizadas: en `tests/books/books-integration.test.js`, la última prueba arrancaba un servidor hijo que seguía abierto cuando `app.close()` borraba la carpeta temporal. En Windows eso daba `EBUSY` sobre `library.sqlite-shm`. Se detiene ahora el servidor dentro de la propia prueba, con `try/finally`, antes de la limpieza. No hubo cambios en código de la aplicación.
 
 ### 8.5. Verificación manual (SPEC-002 §10)
 

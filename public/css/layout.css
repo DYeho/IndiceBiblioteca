@@ -2,18 +2,10 @@
    layout.css
    Estructura de página: contenedor, header / main / footer, cuadrícula de
    resultados y reglas responsivas (SPEC-000 §9.3).
-   Mobile-first. Puntos de quiebre literales: 600px y 900px
-   (las variables CSS no funcionan dentro de @media).
-   Solo estructura: los colores y el aspecto de los componentes van en
-   base.css y components.css.
+   Mobile-first. Puntos de quiebre literales: 600px y 900px.
    ========================================================================== */
 
 /* 1. Estructura general de la página ------------------------------------- */
-body {
-  display: flex;
-  flex-direction: column;
-}
-
 .site-main {
   flex: 1 0 auto;
   padding-block: var(--space-4);
@@ -29,11 +21,17 @@ body {
 
 /* 3. Encabezado y pie ----------------------------------------------------- */
 .site-header {
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.site-header-inner {
+.site-header-inner,
+.site-header .container {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -42,12 +40,63 @@ body {
   padding-block: var(--space-3);
 }
 
+.site-header-inner > p,
+.site-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Ícono decorativo sutil junto al nombre del portal */
+.site-header-inner > p::before {
+  content: "";
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 3px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-amber));
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.5);
+}
+
+.site-header nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.site-header nav a {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: rgba(30, 41, 59, 0.65);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.site-header nav a:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  text-decoration: none;
+}
+
 .site-footer {
   flex-shrink: 0;
-  padding-block: var(--space-3);
-  border-top: 1px solid var(--color-border);
+  padding-block: var(--space-4);
+  margin-top: var(--space-5);
+  border-top: 1px solid var(--color-border-subtle);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+  text-align: center;
 }
 
 /* 4. Pila vertical de bloques --------------------------------------------- */
@@ -58,7 +107,6 @@ body {
 }
 
 /* 5. Búsqueda: resultados y panel de detalle ------------------------------ */
-/* En móvil, el panel de detalle queda bajo los resultados, a ancho completo. */
 .search-layout {
   display: flex;
   flex-direction: column;
@@ -76,7 +124,7 @@ body {
 /* 6. Cuadrícula de resultados --------------------------------------------- */
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
   gap: var(--space-3);
 }
 
@@ -89,12 +137,9 @@ body {
   .site-main {
     padding-block: var(--space-5);
   }
-
 }
 
 @media (min-width: 900px) {
-  /* El panel de detalle pasa a columna lateral. Si está oculto
-     (atributo hidden), los resultados ocupan todo el ancho. */
   .search-layout {
     flex-direction: row;
     align-items: flex-start;
@@ -105,78 +150,8 @@ body {
   }
 
   .detail-region {
-    flex: 0 0 22rem;
-  }
-}
-
-/* Container, header / main / footer structure and responsive rules (breakpoints: 600px and 900px). */
-.container {
-  width: 100%;
-  max-width: var(--container-max);
-  margin: 0 auto;
-  padding: 0 var(--space-3);
-}
-
-.site-header {
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--space-3) 0;
-}
-
-.site-header .container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.site-title {
-  margin: 0;
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-}
-
-main {
-  flex: 1;
-  padding: var(--space-4) 0;
-}
-
-.site-footer {
-  padding: var(--space-3) 0;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  border-top: 1px solid var(--color-border);
-}
-
-.skip-link {
-  position: absolute;
-  left: var(--space-2);
-  top: -4rem;
-  padding: var(--space-2) var(--space-3);
-  background: var(--color-surface);
-  color: var(--color-text);
-  border: 2px solid var(--color-focus);
-  border-radius: var(--radius);
-  z-index: 10;
-}
-
-.skip-link:focus {
-  top: var(--space-2);
-}
-
-@media (min-width: 600px) {
-  .container {
-    padding: 0 var(--space-4);
-  }
-
-  .site-header .container {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-@media (min-width: 900px) {
-  main {
-    padding: var(--space-5) 0;
+    flex: 0 0 24rem;
+    position: sticky;
+    top: 5rem;
   }
 }
