@@ -17,6 +17,7 @@
       <nav class="admin-nav" aria-label="Administración">
         <button type="button" class="btn btn-secondary" data-section="buscar" aria-current="page">Buscar libros</button>
         <button type="button" class="btn btn-secondary" data-section="registrar">Registrar libro</button>
+        <button type="button" class="btn btn-secondary" data-section="asignar">Asignar estantes</button>
         <button type="button" class="btn btn-secondary" id="logout">Cerrar sesión</button>
       </nav>
     </div>
@@ -78,6 +79,24 @@
         <button id="register-book" type="submit" class="btn btn-primary">Registrar libro</button>
       </form>
     </section>
+    <section id="seccion-asignar" class="admin-section stack" aria-labelledby="titulo-asignar" hidden>
+      <div class="section-header">
+        <h2 id="titulo-asignar" tabindex="-1">Libros sin estante</h2>
+        <div class="options-menu">
+          <button id="shelf-menu-button" type="button" class="btn btn-secondary options-menu-button" aria-label="Más opciones" aria-expanded="false" aria-controls="shelf-menu-panel"><span aria-hidden="true">⋮</span></button>
+          <div id="shelf-menu-panel" class="options-menu-panel" hidden>
+            <button id="shelf-show-assigned" type="button" class="btn btn-secondary">Ver libros con estante asignado</button>
+          </div>
+        </div>
+      </div>
+      <div id="shelf-messages" aria-live="polite" aria-atomic="true"></div>
+      <div id="shelf-summary" role="status" aria-live="polite"></div>
+      <div id="shelf-list"></div>
+    </section>
+    <section id="seccion-editar" class="admin-section stack" aria-labelledby="titulo-editar" hidden>
+      <h2 id="titulo-editar" tabindex="-1">Editar libro</h2>
+      <div id="edit-messages" aria-live="polite" aria-atomic="true"></div>
+    </section>
   </main>
   <footer class="site-footer">
     <div class="container">Índice Biblioteca</div>
@@ -85,4 +104,3 @@
   <script type="module" src="../js/admin/main.js"></script>
 </body>
 </html>
-

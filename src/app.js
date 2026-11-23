@@ -114,6 +114,8 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
   // 6. JSON 404 for the rest of /api.
   api.use(notFoundApi);
   app.use('/api', api);
+    // /login (no extension) is not a page: send it to the login page.
+  app.get('/login', (req, res) => res.redirect(302, '/login.html'));
 
   // 7. /admin guard, before the static files.
   app.use(adminPageGuard);

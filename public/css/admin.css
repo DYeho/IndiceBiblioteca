@@ -49,3 +49,21 @@
 #book-description {
   resize: vertical;
 }
+
+/* 4. Encabezado de sección con menú de opciones (Asignar estantes) -------- */
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.section-header h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+#shelf-messages,
+#shelf-summary {
+  overflow-wrap: anywhere;
+}
