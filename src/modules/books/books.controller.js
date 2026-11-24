@@ -13,6 +13,24 @@ export function createBooksController({ service }) {
       }
     },
 
+    getById(req, res, next) {
+      try {
+        const book = service.getBookById(req.params.id);
+        res.json({ data: book });
+      } catch (error) {
+        next(error);
+      }
+    },
+
+    edit(req, res, next) {
+      try {
+        const book = service.editBook(req.params.id, req.body);
+        res.json({ data: book });
+      } catch (error) {
+        next(error);
+      }
+    },
+
     /** GET /api/shelf-assignments?status= (solo Administración, HU-003) */
     listShelfAssignments(req, res, next) {
       try {
