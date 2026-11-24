@@ -23,7 +23,7 @@
     </div>
   </header>
   <main id="contenido" class="container">
-    <div id="mensajes" aria-live="polite"></div>
+    <div id="mensajes" aria-live="polite" tabindex="-1"></div>
     <section id="seccion-buscar" class="admin-section stack" aria-labelledby="titulo-buscar">
       <h1 id="titulo-buscar">Buscar libros</h1>
       <form class="form-field" id="search-form" role="search" novalidate>
@@ -96,6 +96,35 @@
     <section id="seccion-editar" class="admin-section stack" aria-labelledby="titulo-editar" hidden>
       <h2 id="titulo-editar" tabindex="-1">Editar libro</h2>
       <div id="edit-messages" aria-live="polite" aria-atomic="true"></div>
+       <p id="edit-state" class="state state-loading" role="status" hidden>Cargando…</p>
+      <form id="edit-form" novalidate hidden>
+        <div class="field">
+          <label for="edit-title">Título</label>
+          <input id="edit-title" name="title" type="text" required maxlength="200" aria-describedby="edit-title-error">
+          <p id="edit-title-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="edit-author">Autor</label>
+          <input id="edit-author" name="author" type="text" required maxlength="150" aria-describedby="edit-author-error">
+          <p id="edit-author-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="edit-description">Descripción (opcional)</label>
+          <textarea id="edit-description" name="description" maxlength="2000" rows="5" aria-describedby="edit-description-error"></textarea>
+          <p id="edit-description-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="edit-quantity">Cantidad</label>
+          <input id="edit-quantity" name="quantity" type="text" inputmode="numeric" required aria-describedby="edit-quantity-error">
+          <p id="edit-quantity-error" class="field-error" hidden></p>
+        </div>
+        <p id="edit-shelf" class="assignment-meta"></p>
+        <p class="assignment-meta">El estante se cambia en “Asignar estantes”.</p>
+        <div class="form-actions">
+          <button id="save-edit" type="submit" class="btn btn-primary">Guardar cambios</button>
+          <button id="cancel-edit" type="button" class="btn btn-secondary">Cancelar</button>
+        </div>
+      </form>
     </section>
   </main>
   <footer class="site-footer">

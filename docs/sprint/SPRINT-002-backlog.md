@@ -30,7 +30,7 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | HU | Nombre | Estado | Observación |
 |---|---|---|---|
 | HU-003 | Organizar libros por estante | Terminada | Backend, pruebas y codigo de la interfaz terminados; npm test pasa (84 de 84). |
-| HU-004 | Editar libros registrados | Pendiente | |
+| HU-004 | Editar libros registrados | Terminada | Se implementó la edición y se incorporaron la interfaz y las pruebas. |
 | HU-005 | Eliminar libro | Pendiente | |
 | HU-006 | Búsqueda de libros por nombre o autor | Terminada (Sprint 1) | CA-010 se completa en parte: «Editar» y «Eliminar». CA-009 y CA-010 siguen parcialmente verificados hasta que exista «Ver información» (capacidad 7, D-27). |
 
@@ -51,10 +51,10 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | T-31 | Interfaz: botón «Asignar estantes», sección con las dos listas, menú de tres puntos, estados y `aria-live` (`shelves.js`). Pasa `admin/index.html` a cuatro secciones y añade los estilos de menú y de fila de lista. | HU-003 | T-30 | `feature/HU-003` | Terminada |
 | T-32 | Pruebas de asignación de estante (`tests/books/shelf.test.js`, PD-01 a PD-20), ejecutadas con `npm test`. | HU-003 | T-30 | `feature/HU-003` | Terminada |
 | **Bloque C. HU-004** | | | | | |
-| T-33 | `books.repository` y `books.service`: lectura por identificador y edición (validación, duplicado excluyendo el propio libro, columnas normalizadas, `updated_at` según D-18). | HU-004 | T-29 | `feature/HU-004` | Pendiente |
-| T-34 | Controlador y rutas: `GET /api/books/:id` y `PUT /api/books/:id` con `requireAdmin`. | HU-004 | T-33 | `feature/HU-004` | Pendiente |
-| T-35 | Interfaz: botón «Editar» en la tarjeta del administrador (`admin/books.js`) y sección «Editar libro» (`book-edit.js`), con sus estados y mensajes. | HU-004, HU-006 | T-31, T-34 | `feature/HU-004` | Pendiente |
-| T-36 | Pruebas de edición (`tests/books/edit.test.js`, PE-01 a PE-20), ejecutadas con `npm test`. | HU-004 | T-34 | `feature/HU-004` | Pendiente |
+| T-33 | `books.repository` y `books.service`: lectura por identificador y edición (validación, duplicado excluyendo el propio libro, columnas normalizadas, `updated_at` según D-18). | HU-004 | T-29 | `feature/HU-004` | Terminada |
+| T-34 | Controlador y rutas: `GET /api/books/:id` y `PUT /api/books/:id` con `requireAdmin`. | HU-004 | T-33 | `feature/HU-004` | Terminada |
+| T-35 | Interfaz: botón «Editar» en la tarjeta del administrador (`admin/books.js`) y sección «Editar libro» (`book-edit.js`), con sus estados y mensajes. | HU-004, HU-006 | T-31, T-34 | `feature/HU-004` | Terminada |
+| T-36 | Pruebas de edición (`tests/books/edit.test.js`, PE-01 a PE-20), ejecutadas con `npm test`. | HU-004 | T-34 | `feature/HU-004` | Terminada |
 | **Bloque D. HU-005** | | | | | |
 | T-37 | `books.repository` y `books.service`: eliminación en una sola sentencia y detección de libro inexistente. | HU-005 | T-29 | `feature/HU-005` | Pendiente |
 | T-38 | Controlador y ruta `DELETE /api/books/:id` con `requireAdmin` (204 o 404). | HU-005 | T-37 | `feature/HU-005` | Pendiente |
@@ -103,17 +103,17 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 | HU | Estado final | Evidencia |
 |---|---|---|
 | HU-003 | Terminado | PD-01 a PD-20 y dos pruebas de refuerzo en tests/books/shelf.test.js, ejecutadas con npm test (84 de 84). |
-| HU-004 | | |
+| HU-004 | Terminado | Se aprobaron PE-01 a PE-20 y dos pruebas adicionales de edición en `tests/books/edit.test.js`. |
 | HU-005 | | |
 | HU-006 (CA-009 y CA-010, parcial) | | |
 
 ### 8.3. Pruebas automatizadas
 
 - Comando: `npm test`
-- Fecha, rama y commit:
-- Resultado (total / pasan / fallan / omitidas):
-- Ejecutó:
-- Pruebas que no se ejecutaron o fallan:
+- Fecha, rama y commit: 24/11/2026, `feature/HU-004`, `5c399bb`.
+- Resultado (total / pasan / fallan / omitidas): 106 / 106 / 0 / 0.
+- Ejecutó: Mario Díaz Ramos.
+- Pruebas que no se ejecutaron o fallan: ninguna en la suite ejecutada.
 
 ### 8.4. Pruebas del Sprint 1 (deuda técnica, T-27)
 
@@ -135,7 +135,7 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 | Paso | Resultado | Ejecutó | Fecha | Observación |
 |---|---|---|---|---|
 | V-29 a V-38 (HU-003) | | | | |
-| V-39 a V-48 (HU-004) | | | | |
+| V-39 a V-48 (HU-004) | 8 aprobadas, 1 parcial y 1 pendiente | Mario Díaz Ramos | 24/11/2026 | Se aprobaron V-39, V-41 a V-45, V-47 y V-48. V-40 (parcial): se verificó el guardado y la persistencia tras recargar y volver a buscar el libro. Queda pendiente verificar la persistencia tras reiniciar el servidor. V-46: queda pendiente de verificación conjunta con HU-005. |
 | V-49 a V-54 (HU-005) | | | | |
 | V-55 a V-58 (perfiles y acceso) | | | | |
 | V-59 a V-63 (interfaz) | | | | |
