@@ -14,7 +14,7 @@ function mapBook(row) {
 export function createBooksRepository(database, { now = () => new Date().toISOString() } = {}) {
   const findByNormalizedKey = database.prepare(`
     SELECT id FROM books
-    WHERE title_normalized = ? AND author_normalized = ?
+    WHERE title_normalized = ? AND author_normalized = ? AND id IS NOT ?
     LIMIT 1
   `);
   const insertBook = database.prepare(`
@@ -29,6 +29,30 @@ export function createBooksRepository(database, { now = () => new Date().toISOSt
            shelf_label, created_at, updated_at
     FROM books WHERE id = ?
   `);
+  const updateBook = database.prepare(`
+    UPDATE books
+    SET title = @title, author = @author, description = @description, quantity = @quantity,
+        title_normalized = @titleNormalized, author_normalized = @authorNormalized,
+        updated_at = CASE
+          WHEN @updatedAt > updated_at THEN @updatedAt
+          ELSE strftime('%Y-%m-%dT%H:%M:%fZ', updated_at, '+0.001 seconds')
+        END
+    WHERE id = @id
+      AND (title IS NOT @title OR author IS NOT @author OR description IS NOT @description
+           OR quantity IS NOT @quantity OR title_normalized IS NOT @titleNormalized
+           OR author_normalized IS NOT @authorNormalized)
+  `);
+
+  function findById(id) {
+    const row = getBook.get(id);
+    return row ? mapBook(row) : null;
+  }
+
+  const update = database.transaction((id, book) => {
+    updateBook.run({ ...book, id, updatedAt: now() });
+    return findById(id);
+  });
+
   // T-19: coincidencia con instr() sobre las columnas normalizadas (D-10).
   // No se usa LIKE: no hay comodines que escapar. El texto va siempre como parámetro.
   const searchStatement = database.prepare(`
@@ -61,8 +85,8 @@ export function createBooksRepository(database, { now = () => new Date().toISOSt
   `);
 
   return {
-    findByNormalizedKey(titleNormalized, authorNormalized) {
-      return findByNormalizedKey.get(titleNormalized, authorNormalized) ?? null;
+    findByNormalizedKey(titleNormalized, authorNormalized, excludedId = null) {
+      return findByNormalizedKey.get(titleNormalized, authorNormalized, excludedId) ?? null;
     },
     insert(book) {
       const timestamp = now();
@@ -79,10 +103,8 @@ export function createBooksRepository(database, { now = () => new Date().toISOSt
       return mapBook(getBook.get(result.lastInsertRowid));
     },
     /** @returns {object|null} el libro completo (sin columnas normalizadas) o null si no existe */
-    findById(id) {
-      const row = getBook.get(id);
-      return row ? mapBook(row) : null;
-    },
+    findById,
+    update,
     /** Libros con shelf_label nulo: id, title, author, quantity y shelfLabel (siempre null). */
     listUnassigned() {
       return listUnassignedStatement.all();
