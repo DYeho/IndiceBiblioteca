@@ -1,6 +1,7 @@
 import { request, ApiError } from '../shared/api.js';
 import { createElement, setBusy, showMessage } from '../shared/utils.js';
 import { initializeBookRegistration, initializeBookSearch } from './books.js';
+import { initializeBookEdit } from './book-edit.js';
 import { initializeShelfAssignments } from './shelves.js';
 
 const sectionButtons = document.querySelectorAll('[data-section]');
@@ -61,5 +62,12 @@ for (const button of sectionButtons) {
   });
 }
 showSection('buscar');
-initializeBookSearch();
+// HU-004: «Editar» en una tarjeta abre la sección «Editar libro» (D-23).
+const edit = initializeBookEdit({
+  showSection,
+  messages: getMessagesContainer(),
+  repeatSearch: () => search.repeatLastSearch(),
+  focusEditButton: (bookId) => search.focusEditButton(bookId),
+});
+const search = initializeBookSearch({ onEdit: (book) => edit.open(book.id) });
 initializeBookRegistration();
