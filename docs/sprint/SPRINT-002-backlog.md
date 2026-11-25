@@ -105,7 +105,7 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 | HU-003 | Terminado | PD-01 a PD-20 y dos pruebas de refuerzo en tests/books/shelf.test.js, ejecutadas con npm test (84 de 84). |
 | HU-004 | Terminado | Se aprobaron PE-01 a PE-20 y dos pruebas adicionales de edición en `tests/books/edit.test.js`. |
 | HU-005 | Terminado | PF-01 a PF-11 en `tests/books/delete.test.js`, ejecutadas con `npm test` (117 de 117). Verificación manual V-49 a V-54 en §8.5. |
-| HU-006 (CA-009 y CA-010, parcial) | | «Editar» y «Eliminar» completos; falta «Ver información». |
+| HU-006 (CA-009 y CA-010, parcial) | Parcial (excepción D-27) | «Editar» y «Eliminar» completos: V-55 y V-56 aprobadas (§8.5). Falta «Ver información» (capacidad 7). |
 
 ### 8.3. Pruebas automatizadas
 
@@ -114,6 +114,13 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 - Resultado (total / pasan / fallan / omitidas): 117 / 117 / 0 / 0.
 - Ejecutó: Leonardo Emilio García Balderas.
 - Pruebas que no se ejecutaron o fallan: ninguna en la suite ejecutada.
+
+**Ejecución final del Bloque E (T-43):**
+
+- Fecha, rama y commit: 25/11/2026, `feature/SPRINT-002`, `6e2b873` (incluye HU-003, HU-004 y HU-005 integradas).
+- Resultado (total / pasan / fallan / omitidas): 117 / 117 / 0 / 0. Duración: 32.5 s.
+- Ejecutó: Emilio (EMILIO), con `npm test` en Windows 11 y Node.js 24.13.0.
+- Pruebas que no se ejecutaron o fallan: ninguna. Siguen sin existir las pruebas PA-01 a PA-22 de autenticación (§8.4).
 
 ### 8.4. Pruebas del Sprint 1 (deuda técnica, T-27)
 
@@ -134,22 +141,22 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 
 | Paso | Resultado | Ejecutó | Fecha | Observación |
 |---|---|---|---|---|
-| V-29 a V-38 (HU-003) | | | | |
-| V-39 a V-48 (HU-004) | 8 aprobadas, 1 parcial y 1 pendiente | Mario Díaz Ramos | 24/11/2026 | Se aprobaron V-39, V-41 a V-45, V-47 y V-48. V-40 (parcial): se verificó el guardado y la persistencia tras recargar y volver a buscar el libro. Queda pendiente verificar la persistencia tras reiniciar el servidor. V-46: queda pendiente de verificación conjunta con HU-005. |
+| V-29 a V-38 (HU-003) | 9 aprobadas, 1 parcial | Emilio (EMILIO) | 25/11/2026 | Verificación automatizada en Chrome. Aprobadas: V-29 a V-37. V-32: vacía y solo espacios muestran «El estante es obligatorio.»; el campo tiene `maxlength` 30 y no deja escribir 31 caracteres, así que se comprobó también la API, que responde 400 «El estante no puede superar 30 caracteres.». En los tres casos el libro sigue en la lista. V-33 y la eliminación de V-46 se hicieron con una segunda sesión de Administración. V-36: estantes conservados tras detener y reiniciar el servidor. **V-38 (parcial):** la búsqueda pública distingue los dos casos, pero el texto es «Estante A-2» y «Sin estante asignado», no «Estante: …» y «Estante no asignado» como dice SPEC-002 §10.2. |
+| V-39 a V-48 (HU-004) | 10 aprobadas, 0 pendientes | Mario Díaz Ramos; V-40 y V-46 completadas por Emilio (EMILIO) | 24/11/2026; 25/11/2026 | Se aprobaron V-39, V-41 a V-45, V-47 y V-48 (24/11/2026). V-40: se verificó el guardado y la persistencia tras recargar y volver a buscar el libro; el 25/11/2026, Emilio (EMILIO) completó, con verificación automatizada en Chrome, la persistencia tras reiniciar el servidor (cantidad 7 y descripción conservadas). V-46: aprobada el 25/11/2026: tras eliminar el libro desde otra sesión, guardar muestra «El libro no existe.» y vuelve a «Buscar libros» repitiendo la búsqueda. |
 | V-49 a V-54 (HU-005) | 6 aprobadas, 0 pendientes | Leonardo Emilio García Balderas | 25/11/2026 | Aprobadas: V-49, V-50, V-51, V-52, V-53 y V-54. Pendientes: ninguna. |
-| V-55 a V-58 (perfiles y acceso) | | | | Ejecutadas y aprobadas en el contexto de HU-005 por Leonardo Emilio García Balderas (25/11/2026). |
-| V-59 a V-63 (interfaz) | | | | Ejecutadas y aprobadas en el contexto de HU-005 por Leonardo Emilio García Balderas (25/11/2026). |
+| V-55 a V-58 (perfiles y acceso) | 4 aprobadas, 0 pendientes | Leonardo Emilio García Balderas; repetidas por Emilio (EMILIO) | 25/11/2026 | Ejecutadas y aprobadas en el contexto de HU-005 por Leonardo Emilio García Balderas. Repetidas por Emilio (EMILIO) con todo el sprint integrado, con verificación automatizada en Chrome. V-55: la página pública, con y sin sesión, no muestra «Editar» ni «Eliminar». V-56: cada tarjeta del administrador tiene «Editar «título»» y «Eliminar «título»», sin «Ver información». V-57: sin sesión, `PUT /api/books/:id`, `PUT /api/books/:id/shelf`, `DELETE /api/books/:id` y `POST /api/books` responden 401 y no cambia nada. V-58: tras cerrar sesión en otra pestaña, «Asignar estantes» redirige a `login.html`. |
+| V-59 a V-63 (interfaz) | 5 aprobadas, 0 pendientes | Leonardo Emilio García Balderas; repetidas por Emilio (EMILIO) | 25/11/2026 | Ejecutadas y aprobadas en el contexto de HU-005 por Leonardo Emilio García Balderas. Repetidas por Emilio (EMILIO) con todo el sprint integrado, con verificación automatizada en Chrome. V-59: las cuatro secciones y el diálogo, a 320 y 1280 px, sin desplazamiento horizontal. V-60: menú «⋮», formularios de estante y edición, y diálogo usables solo con teclado, con foco visible; el diálogo empieza en «Cancelar», el contenido de detrás queda inerte y Escape cierra devolviendo el foco a «Eliminar». V-61: los mensajes de éxito y error llegan a regiones `aria-live`; no se probó con un lector de pantalla real. V-62: contraste mínimo 4.67:1 (botones de peligro, cerca del límite); «Editar» 13.98:1, texto secundario 5.71:1, botón primario 7.77:1. Los botones de peligro dicen «Eliminar» y «Eliminar libro». V-63: ningún error de CSP en login, página pública y administración. |
 
 ### 8.6. Definition of Done (SPEC-000 §7)
 
 | Apartado | Cumple | Observación |
 |---|---|---|
-| §7.1 Código | | |
-| §7.2 Calidad | | |
-| §7.3 Seguridad | | HU-005: DELETE con requireAdmin, consulta parametrizada, id validado como entero positivo, salida con textContent. |
-| §7.4 Base de datos | | HU-005: sin cambios de esquema; persistencia verificada (PF-04). |
-| §7.5 Interfaz | | |
-| §7.6 Documentación y Git | | |
+| §7.1 Código | Sí | Revisión de código (SPEC-002 §9.4): sin atributos `style`, manejadores `on…`, `<script>` ni `<style>` con contenido, sin `innerHTML`. Los módulos usan `shared/api.js` y no llaman a `fetch` directamente. Sin credenciales en el repositorio (`.env` y bases SQLite ignorados). |
+| §7.2 Calidad | Sí, con observación | `npm test`: 117 de 117 en `feature/SPRINT-002` (§8.3). Pasos V-29 a V-63 ejecutados, con V-38 parcial por el texto (§8.5). Observación: `scripts/seed-dev.js` importa `loadConfig`, que no existe en `src/config/env.js`, y falla al ejecutarse. No forma parte del plan de verificación. |
+| §7.3 Seguridad | Sí | Todas las rutas de estante, edición y eliminación usan `requireAdmin` (V-37 y V-57: 401 sin sesión). Origen y tipo de contenido verificados en las rutas que modifican (PD-18). HU-005: DELETE con requireAdmin, consulta parametrizada, id validado como entero positivo, salida con textContent. |
+| §7.4 Base de datos | Sí | Sin cambios de esquema (D-22). Restricciones verificadas (T-28, PD-19). Persistencia verificada en pruebas (PD-07, PE-04, PF-04) y tras reiniciar el servidor (V-36, V-40, V-51). |
+| §7.5 Interfaz | Sí | Plantilla y tokens comunes. Revisada a 320 px y en escritorio (V-59), con teclado y foco visible (V-60), contraste (V-62). Textos en español. |
+| §7.6 Documentación y Git | Parcial | Ramas `feature/HU-00X` integradas en `feature/SPRINT-002`. Hay commits que no siguen la convención de SPEC-000 §6 ni están en inglés (por ejemplo `5c399bb` «test de prueba», `6cd51fc`, `33cfae0`, `14bf296`, `14892ff`, `c8ecaf2`). T-42 (actualizaciones documentales) sigue pendiente. SPEC-002 §10.1 indica `npm run admin:create`, pero el script se llama `npm run create-admin`. |
 
 ### 8.7. Excepción declarada
 
@@ -163,3 +170,11 @@ HU-006 CA-009 y CA-010: parcialmente verificadas (D-27). «Editar» (HU-004) y �
 | SPEC-001 | D-11, §7.2, §7.4 y §7.5 | | |
 
 ### 8.9. Pendiente para el Sprint 3
+
+- V-38: alinear el texto del estante en la búsqueda pública con SPEC-002 («Estante: …» y «Estante no asignado»), o actualizar la SPEC con el texto actual.
+- La zona global de mensajes (`#mensajes`) conserva el último mensaje al cambiar de sección; por ejemplo, «El libro no existe.» sigue visible al abrir «Asignar estantes».
+- Corregir `scripts/seed-dev.js` (importa `loadConfig`, que no existe).
+- Corregir en SPEC-002 §10.1 el nombre del script: `npm run create-admin`, no `npm run admin:create`.
+- Crear las pruebas de autenticación PA-01 a PA-22 (deuda de §8.4).
+- T-42: aplicar las actualizaciones documentales de SPEC-002 Anexo B.
+- HU-006 CA-009 y CA-010: «Ver información» (capacidad 7).
