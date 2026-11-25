@@ -713,8 +713,6 @@ Decisiones confirmadas que cada SPEC funcional debe respetar y detallar.
 
 Estos límites se validan en el backend y se reflejan en la base de datos cuando corresponda.
 
-No existe listado completo del catálogo. Se llega a los libros solo mediante búsqueda (Estudiantes y Administración). Única excepción: la Administración, con sesión válida, dispone de las listas de asignación de estante (libros sin estante y libros con estante). Los estudiantes no tienen ningún listado
-
 ## 11. Glosario
 
 | Término | Significado |

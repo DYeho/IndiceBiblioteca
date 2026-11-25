@@ -40,7 +40,7 @@ Este documento es estable. El estado de las tareas se lleva en `docs/sprint/SPRI
 | D-08 | El limitador de login cuenta solo credenciales fallidas. Credenciales incorrectas responden 401 `INVALID_CREDENTIALS`. |
 | D-09 | `admin/index.html` única, con dos secciones (Buscar y Registrar) que se alternan por JavaScript. |
 | D-10 | Búsqueda: `GET /api/books?q=`, pública, con `q` obligatorio. Se implementa con `instr()` sobre las columnas normalizadas. |
-| D-11 | El esquema base va en `schema.sql`. La tabla `schema_migrations` se crea vacía. No hay migraciones previstas en el Sprint 2; se definirá cuando haga falta la primera |
+| D-11 | El esquema base va en `schema.sql`. La tabla `schema_migrations` se crea vacía. No hay migraciones previstas en el Sprint 2; se definirá cuando haga falta la primera. |
 | D-12 | `create-admin.js` valida la contraseña en caracteres (8 a 72) y además rechaza las que superen 72 **bytes** UTF-8, porque ese es el límite real de bcrypt. |
 | D-13 | Las variables de entorno se leen con `process.loadEnvFile()` nativo de Node.js. No se agrega `dotenv`. |
 
@@ -127,7 +127,7 @@ No se crean directorios nuevos en el código. Se añaden archivos dentro de dire
 | RN-B04 | Si el texto buscado queda vacío tras normalizarlo (vacío, solo espacios o solo marcas diacríticas), no se ejecuta la búsqueda ni se devuelve el catálogo. Máximo 200 caracteres (D-06). |
 | RN-B05 | Cada resultado incluye título, autor, cantidad y estante. Los libros agotados o sin estante siempre pueden aparecer. |
 | RN-B06 | Orden: título normalizado, luego autor normalizado y, para desempate total, el identificador. Sin paginación ni límite. |
-| RN-B07 | Acciones por perfil (D-02): la interfaz del estudiante nunca incluye "Editar" ni "Eliminar". En el Sprint 1 no se muestran acciones para ningún perfil, porque no existen. La tarjeta del administrador deja listo el contenedor de acciones para el Sprint 2. |
+| RN-B07 | Acciones por perfil (D-02): la interfaz del estudiante nunca incluye "Editar" ni "Eliminar". En el Sprint 1 no se muestran acciones para ningún perfil, porque no existen. La tarjeta del administrador deja listo el contenedor de acciones para el Sprint 2. A partir del Sprint 2, RN-T07 de SPEC-002 sustituye a esta regla. |
 
 ### 4.4. Reglas transversales
 
@@ -348,7 +348,7 @@ El formulario usa `novalidate`: la validación visible es la propia (los mismos 
 |---|---|
 | Éxito (201) | Mensaje: "Libro registrado correctamente: «título» de autor, N ejemplares." Se muestran los datos devueltos por el servidor. El formulario se vacía y el foco vuelve a "Título". |
 | 400 | Cada mensaje junto a su campo, con `aria-describedby`. Resumen de error. El foco va al primer campo inválido. Se conservan los valores escritos. |
-| 409 | Alerta: "Ese libro ya existe. Edite el libro existente." Se conservan los valores. Sin enlace de edición: la respuesta no devuelve el identificador del libro existente |
+| 409 | Alerta: "Ese libro ya existe. Edite el libro existente." Se conservan los valores. Sin enlace de edición: la respuesta no devuelve el identificador del libro existente. |
 | 401 | `api.js` redirige a `/login.html`. |
 | Otro error | "No se pudo registrar el libro. Inténtelo de nuevo." |
 
