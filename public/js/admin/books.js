@@ -112,7 +112,7 @@ function formatAvailability(quantity) {
 }
 
 // HU-006: búsqueda de libros en la sección "Buscar libros" de Administración.
-export function initializeBookSearch({ onEdit } = {}) {
+export function initializeBookSearch({ onEdit, onDelete } = {}) {
   const form = document.getElementById('search-form');
   if (!form) return { repeatLastSearch() {}, focusEditButton() {} };
   const input = document.getElementById('search-input');
@@ -206,7 +206,14 @@ export function initializeBookSearch({ onEdit } = {}) {
         attributes: { type: 'button', 'aria-label': `Editar «${book.title}»`, 'data-book-id': String(book.id) },
       });
       editButton.addEventListener('click', () => onEdit?.(book, editButton));
-      actions.append(editButton);
+      // HU-005: botón de peligro. Se distingue por el texto además del color.
+      const deleteButton = createElement('button', {
+        className: 'btn btn-danger',
+        text: 'Eliminar',
+        attributes: { type: 'button', 'aria-label': `Eliminar «${book.title}»`, 'data-delete-id': String(book.id) },
+      });
+      deleteButton.addEventListener('click', () => onDelete?.(book, deleteButton));
+      actions.append(editButton, deleteButton);
 
       item.append(card, actions);
       grid.append(item);

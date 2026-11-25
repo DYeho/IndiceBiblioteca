@@ -65,13 +65,15 @@
   text-decoration: none;
 }
 
-.button-danger {
+.button-danger,
+.btn-danger {
   background-color: var(--color-danger-bg);
   border-color: var(--color-danger);
   color: var(--color-danger);
 }
 
-.button-danger:hover:not(:disabled) {
+.button-danger:hover:not(:disabled),
+.btn-danger:hover:not(:disabled) {
   background-color: var(--color-danger);
   color: var(--color-bg);
 }
@@ -493,4 +495,53 @@
   flex-wrap: wrap;
   gap: var(--space-2);
   padding-top: var(--space-2);
+}
+
+/* 11. Diálogo de confirmación de eliminación (HU-005) --------------------- */
+.confirm-dialog {
+  width: min(32rem, calc(100vw - var(--space-4)));
+  max-height: calc(100dvh - var(--space-4));
+  overflow-y: auto;
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--color-text);
+}
+
+.confirm-dialog::backdrop {
+  background-color: var(--color-bg);
+  opacity: 0.8;
+}
+
+.confirm-dialog-title {
+  margin-bottom: var(--space-3);
+}
+
+.confirm-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow-wrap: anywhere;
+}
+
+.confirm-dialog-body p + p {
+  margin-top: 0;
+}
+
+.confirm-dialog-book {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+#delete-messages:not(:empty) {
+  margin-top: var(--space-3);
 }

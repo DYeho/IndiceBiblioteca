@@ -127,6 +127,21 @@
       </form>
     </section>
   </main>
+  <dialog id="delete-dialog" class="confirm-dialog" aria-labelledby="delete-dialog-title">
+    <h2 id="delete-dialog-title" class="confirm-dialog-title">¿Eliminar este libro?</h2>
+    <div class="confirm-dialog-body">
+      <p id="delete-title" class="confirm-dialog-book"></p>
+      <p id="delete-author"></p>
+      <p id="delete-quantity"></p>
+      <p>Esta acción no se puede deshacer.</p>
+      <p id="delete-copies" hidden></p>
+    </div>
+    <div id="delete-messages" role="alert" aria-live="assertive" aria-atomic="true"></div>
+    <div class="confirm-dialog-actions">
+      <button id="delete-cancel" type="button" class="btn btn-secondary">Cancelar</button>
+      <button id="delete-confirm" type="button" class="btn btn-danger">Eliminar libro</button>
+    </div>
+  </dialog>
   <footer class="site-footer">
     <div class="container">Índice Biblioteca</div>
   </footer>
