@@ -62,7 +62,7 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | T-40 | Pruebas de eliminación (`tests/books/delete.test.js`, PF-01 a PF-11), ejecutadas con `npm test`. | HU-005 | T-38 | `feature/HU-005` | Terminada |
 | **Bloque E. Cierre** | | | | | |
 | T-41 | Verificación manual completa del plan de SPEC-002 §10 (V-29 a V-63), con resultados registrados. | Todas | T-31, T-35, T-39 | `develop` | Pendiente |
-| T-42 | Aplicar las actualizaciones documentales de SPEC-002 Anexo B: SPEC-000 §10 #2 y SPEC-001 (D-11, §7.2, §7.4 y §7.5). Registrar la fecha de cada una. | Todas | Aprobación de SPEC-002 | `docs/spec-002` | Pendiente |
+| T-42 | Aplicar las actualizaciones documentales de SPEC-002 Anexo B: SPEC-000 §10 #2 y SPEC-001 (D-11, §7.2, §7.4 y §7.5). Registrar la fecha de cada una. | Todas | Aprobación de SPEC-002 | `docs/spec-002` | Terminada |
 | T-43 | Revisión de la Definition of Done, `npm test` final con toda la suite, commits convencionales en inglés y merge a `develop`. Completar este documento. | Todas | T-27, T-32, T-36, T-40, T-41, T-42 | `develop` | Pendiente |
 
 ## 5. Orden sugerido
@@ -156,7 +156,7 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 | §7.3 Seguridad | Sí | Todas las rutas de estante, edición y eliminación usan `requireAdmin` (V-37 y V-57: 401 sin sesión). Origen y tipo de contenido verificados en las rutas que modifican (PD-18). HU-005: DELETE con requireAdmin, consulta parametrizada, id validado como entero positivo, salida con textContent. |
 | §7.4 Base de datos | Sí | Sin cambios de esquema (D-22). Restricciones verificadas (T-28, PD-19). Persistencia verificada en pruebas (PD-07, PE-04, PF-04) y tras reiniciar el servidor (V-36, V-40, V-51). |
 | §7.5 Interfaz | Sí | Plantilla y tokens comunes. Revisada a 320 px y en escritorio (V-59), con teclado y foco visible (V-60), contraste (V-62). Textos en español. |
-| §7.6 Documentación y Git | Parcial | Ramas `feature/HU-00X` integradas en `feature/SPRINT-002`. Hay commits que no siguen la convención de SPEC-000 §6 ni están en inglés (por ejemplo `5c399bb` «test de prueba», `6cd51fc`, `33cfae0`, `14bf296`, `14892ff`, `c8ecaf2`). T-42 (actualizaciones documentales) sigue pendiente. SPEC-002 §10.1 indica `npm run admin:create`, pero el script se llama `npm run create-admin`. |
+| §7.6 Documentación y Git | Parcial | Ramas `feature/HU-00X` integradas en `feature/SPRINT-002`. Hay commits que no siguen la convención de SPEC-000 §6 ni están en inglés (por ejemplo `5c399bb` «test de prueba», `6cd51fc`, `33cfae0`, `14bf296`, `14892ff`, `c8ecaf2`). T-42 (actualizaciones documentales) terminada en `docs/spec-002` (§8.8). SPEC-002 §10.1 indica `npm run admin:create`, pero el script se llama `npm run create-admin`. |
 
 ### 8.7. Excepción declarada
 
@@ -166,8 +166,8 @@ HU-006 CA-009 y CA-010: parcialmente verificadas (D-27). «Editar» (HU-004) y �
 
 | Documento | Cambio | Fecha | Aplicado por |
 |---|---|---|---|
-| SPEC-000 | §10 #2 | | |
-| SPEC-001 | D-11, §7.2, §7.4 y §7.5 | | |
+| SPEC-000 | §10 #2: excepción de las listas de asignación de estante (D-14). El 25/11/2026 se retiró un párrafo duplicado bajo «Límites de campos». | 20/11/2026; 25/11/2026 | David Josue (`6ab3a47`); Emilio (EMILIO) |
+| SPEC-001 | D-11 (sin migraciones en el Sprint 2), §7.2 (409 sin enlace de edición), §7.4 (RN-T07 sustituye a RN-B07) y §7.5 (botón de peligro y panel de detalle). El 25/11/2026 se añadió la nota de RN-T07 en la fila RN-B07, que faltaba, y el punto final en D-11 y en el mensaje 409. | 20/11/2026; 25/11/2026 | David Josue (`6ab3a47`); Emilio (EMILIO) |
 
 ### 8.9. Pendiente para el Sprint 3
 
@@ -176,5 +176,4 @@ HU-006 CA-009 y CA-010: parcialmente verificadas (D-27). «Editar» (HU-004) y �
 - Corregir `scripts/seed-dev.js` (importa `loadConfig`, que no existe).
 - Corregir en SPEC-002 §10.1 el nombre del script: `npm run create-admin`, no `npm run admin:create`.
 - Crear las pruebas de autenticación PA-01 a PA-22 (deuda de §8.4).
-- T-42: aplicar las actualizaciones documentales de SPEC-002 Anexo B.
 - HU-006 CA-009 y CA-010: «Ver información» (capacidad 7).
