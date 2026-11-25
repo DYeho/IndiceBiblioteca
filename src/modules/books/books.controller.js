@@ -31,6 +31,16 @@ export function createBooksController({ service }) {
       }
     },
 
+    /** DELETE /api/books/:id (solo Administración, HU-005): 204 sin cuerpo o 404 */
+    remove(req, res, next) {
+      try {
+        service.deleteBook(req.params.id);
+        res.status(204).end();
+      } catch (error) {
+        next(error);
+      }
+    },
+
     /** GET /api/shelf-assignments?status= (solo Administración, HU-003) */
     listShelfAssignments(req, res, next) {
       try {

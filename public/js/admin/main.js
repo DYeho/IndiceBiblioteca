@@ -3,6 +3,7 @@ import { createElement, setBusy, showMessage } from '../shared/utils.js';
 import { initializeBookRegistration, initializeBookSearch } from './books.js';
 import { initializeBookEdit } from './book-edit.js';
 import { initializeShelfAssignments } from './shelves.js';
+import { initializeBookDelete } from './book-delete.js';
 
 const sectionButtons = document.querySelectorAll('[data-section]');
 const logoutButton = document.getElementById('logout');
@@ -69,5 +70,13 @@ const edit = initializeBookEdit({
   repeatSearch: () => search.repeatLastSearch(),
   focusEditButton: (bookId) => search.focusEditButton(bookId),
 });
-const search = initializeBookSearch({ onEdit: (book) => edit.open(book.id) });
+// HU-005: «Eliminar» en una tarjeta abre el diálogo de confirmación (D-24).
+const deletion = initializeBookDelete({
+  messages: getMessagesContainer(),
+  repeatSearch: () => search.repeatLastSearch(),
+});
+const search = initializeBookSearch({
+  onEdit: (book) => edit.open(book.id),
+  onDelete: (book, button) => deletion.open(book, button),
+});
 initializeBookRegistration();

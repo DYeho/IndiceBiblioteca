@@ -44,3 +44,19 @@ export function registerBookEditRoutes(router, { requireAdmin, controller }) {
   router.put('/:id', requireAdmin, controller.edit);
   return router;
 }
+
+// HU-005: eliminación de un libro (solo Administración). No existe ruta para eliminar varios (RN-D05).
+export function registerBookDeleteRoutes(router, { requireAdmin, controller }) {
+  if (
+    !router ||
+    typeof router.delete !== 'function' ||
+    typeof requireAdmin !== 'function' ||
+    !controller ||
+    typeof controller.remove !== 'function'
+  ) {
+    throw new TypeError('A router, admin guard and a delete controller are required.');
+  }
+
+  router.delete('/:id', requireAdmin, controller.remove);
+  return router;
+}
