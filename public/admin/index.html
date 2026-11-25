@@ -17,12 +17,13 @@
       <nav class="admin-nav" aria-label="Administración">
         <button type="button" class="btn btn-secondary" data-section="buscar" aria-current="page">Buscar libros</button>
         <button type="button" class="btn btn-secondary" data-section="registrar">Registrar libro</button>
+        <button type="button" class="btn btn-secondary" data-section="asignar">Asignar estantes</button>
         <button type="button" class="btn btn-secondary" id="logout">Cerrar sesión</button>
       </nav>
     </div>
   </header>
   <main id="contenido" class="container">
-    <div id="mensajes" aria-live="polite"></div>
+    <div id="mensajes" aria-live="polite" tabindex="-1"></div>
     <section id="seccion-buscar" class="admin-section stack" aria-labelledby="titulo-buscar">
       <h1 id="titulo-buscar">Buscar libros</h1>
       <form class="form-field" id="search-form" role="search" novalidate>
@@ -78,11 +79,72 @@
         <button id="register-book" type="submit" class="btn btn-primary">Registrar libro</button>
       </form>
     </section>
+    <section id="seccion-asignar" class="admin-section stack" aria-labelledby="titulo-asignar" hidden>
+      <div class="section-header">
+        <h2 id="titulo-asignar" tabindex="-1">Libros sin estante</h2>
+        <div class="options-menu">
+          <button id="shelf-menu-button" type="button" class="btn btn-secondary options-menu-button" aria-label="Más opciones" aria-expanded="false" aria-controls="shelf-menu-panel"><span aria-hidden="true">⋮</span></button>
+          <div id="shelf-menu-panel" class="options-menu-panel" hidden>
+            <button id="shelf-show-assigned" type="button" class="btn btn-secondary">Ver libros con estante asignado</button>
+          </div>
+        </div>
+      </div>
+      <div id="shelf-messages" aria-live="polite" aria-atomic="true"></div>
+      <div id="shelf-summary" role="status" aria-live="polite"></div>
+      <div id="shelf-list"></div>
+    </section>
+    <section id="seccion-editar" class="admin-section stack" aria-labelledby="titulo-editar" hidden>
+      <h2 id="titulo-editar" tabindex="-1">Editar libro</h2>
+      <div id="edit-messages" aria-live="polite" aria-atomic="true"></div>
+       <p id="edit-state" class="state state-loading" role="status" hidden>Cargando…</p>
+      <form id="edit-form" novalidate hidden>
+        <div class="field">
+          <label for="edit-title">Título</label>
+          <input id="edit-title" name="title" type="text" required maxlength="200" aria-describedby="edit-title-error">
+          <p id="edit-title-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="edit-author">Autor</label>
+          <input id="edit-author" name="author" type="text" required maxlength="150" aria-describedby="edit-author-error">
+          <p id="edit-author-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="edit-description">Descripción (opcional)</label>
+          <textarea id="edit-description" name="description" maxlength="2000" rows="5" aria-describedby="edit-description-error"></textarea>
+          <p id="edit-description-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="edit-quantity">Cantidad</label>
+          <input id="edit-quantity" name="quantity" type="text" inputmode="numeric" required aria-describedby="edit-quantity-error">
+          <p id="edit-quantity-error" class="field-error" hidden></p>
+        </div>
+        <p id="edit-shelf" class="assignment-meta"></p>
+        <p class="assignment-meta">El estante se cambia en “Asignar estantes”.</p>
+        <div class="form-actions">
+          <button id="save-edit" type="submit" class="btn btn-primary">Guardar cambios</button>
+          <button id="cancel-edit" type="button" class="btn btn-secondary">Cancelar</button>
+        </div>
+      </form>
+    </section>
   </main>
+  <dialog id="delete-dialog" class="confirm-dialog" aria-labelledby="delete-dialog-title">
+    <h2 id="delete-dialog-title" class="confirm-dialog-title">¿Eliminar este libro?</h2>
+    <div class="confirm-dialog-body">
+      <p id="delete-title" class="confirm-dialog-book"></p>
+      <p id="delete-author"></p>
+      <p id="delete-quantity"></p>
+      <p>Esta acción no se puede deshacer.</p>
+      <p id="delete-copies" hidden></p>
+    </div>
+    <div id="delete-messages" role="alert" aria-live="assertive" aria-atomic="true"></div>
+    <div class="confirm-dialog-actions">
+      <button id="delete-cancel" type="button" class="btn btn-secondary">Cancelar</button>
+      <button id="delete-confirm" type="button" class="btn btn-danger">Eliminar libro</button>
+    </div>
+  </dialog>
   <footer class="site-footer">
     <div class="container">Índice Biblioteca</div>
   </footer>
   <script type="module" src="../js/admin/main.js"></script>
 </body>
 </html>
-

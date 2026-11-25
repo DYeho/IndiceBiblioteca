@@ -13,6 +13,54 @@ export function createBooksController({ service }) {
       }
     },
 
+    getById(req, res, next) {
+      try {
+        const book = service.getBookById(req.params.id);
+        res.json({ data: book });
+      } catch (error) {
+        next(error);
+      }
+    },
+
+    edit(req, res, next) {
+      try {
+        const book = service.editBook(req.params.id, req.body);
+        res.json({ data: book });
+      } catch (error) {
+        next(error);
+      }
+    },
+
+    /** DELETE /api/books/:id (solo Administración, HU-005): 204 sin cuerpo o 404 */
+    remove(req, res, next) {
+      try {
+        service.deleteBook(req.params.id);
+        res.status(204).end();
+      } catch (error) {
+        next(error);
+      }
+    },
+
+    /** GET /api/shelf-assignments?status= (solo Administración, HU-003) */
+    listShelfAssignments(req, res, next) {
+      try {
+        const { books, total } = service.listShelfAssignments(req.query.status);
+        res.json({ data: books, meta: { total } });
+      } catch (error) {
+        next(error);
+      }
+    },
+
+    /** PUT /api/books/:id/shelf (solo Administración, HU-003) */
+    assignShelf(req, res, next) {
+      try {
+        const book = service.assignShelf(req.params.id, req.body);
+        res.json({ data: book });
+      } catch (error) {
+        next(error);
+      }
+    },
+
     /** GET /api/books?q= (público, HU-006) */
     search(req, res, next) {
       try {

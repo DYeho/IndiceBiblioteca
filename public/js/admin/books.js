@@ -112,9 +112,9 @@ function formatAvailability(quantity) {
 }
 
 // HU-006: búsqueda de libros en la sección "Buscar libros" de Administración.
-export function initializeBookSearch() {
+export function initializeBookSearch({ onEdit, onDelete } = {}) {
   const form = document.getElementById('search-form');
-  if (!form) return;
+  if (!form) return { repeatLastSearch() {}, focusEditButton() {} };
   const input = document.getElementById('search-input');
   const errorBox = document.getElementById('search-error');
   const submitButton = document.getElementById('search-submit');
@@ -123,7 +123,7 @@ export function initializeBookSearch() {
   const detailRegion = document.getElementById('detail-region');
 
   let activeCard = null;
-
+  let lastQuery = null;
   function showInputError(text) {
     errorBox.textContent = text;
     errorBox.hidden = text === '';
@@ -197,7 +197,25 @@ export function initializeBookSearch() {
         card.append(createElement('span', { className: 'badge-out-of-stock', text: 'Agotado' }));
       }
       card.addEventListener('click', () => openDetail(book, card));
-      item.append(card);
+
+      // HU-004: acciones de la tarjeta. Van fuera del botón de la tarjeta porque un botón no puede contener otro.
+      const actions = createElement('div', { className: 'book-card-actions' });
+      const editButton = createElement('button', {
+        className: 'btn btn-secondary',
+        text: 'Editar',
+        attributes: { type: 'button', 'aria-label': `Editar «${book.title}»`, 'data-book-id': String(book.id) },
+      });
+      editButton.addEventListener('click', () => onEdit?.(book, editButton));
+      // HU-005: botón de peligro. Se distingue por el texto además del color.
+      const deleteButton = createElement('button', {
+        className: 'btn btn-danger',
+        text: 'Eliminar',
+        attributes: { type: 'button', 'aria-label': `Eliminar «${book.title}»`, 'data-delete-id': String(book.id) },
+      });
+      deleteButton.addEventListener('click', () => onDelete?.(book, deleteButton));
+      actions.append(editButton, deleteButton);
+
+      item.append(card, actions);
       grid.append(item);
     }
 
@@ -206,21 +224,7 @@ export function initializeBookSearch() {
 
   renderState(resultsContainer, 'Busca un libro por título o autor para consultarlo.');
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const query = input.value.trim();
-
-    if (query === '') {
-      showInputError('Escriba un título o autor para buscar.');
-      input.focus();
-      return;
-    }
-    if (Array.from(query).length > MAX_SEARCH_LENGTH) {
-      showInputError(`El texto de búsqueda no puede superar ${MAX_SEARCH_LENGTH} caracteres.`);
-      input.focus();
-      return;
-    }
-
+    async function runSearch(query) {
     showInputError('');
     closeDetail();
     summaryContainer.replaceChildren();
@@ -229,6 +233,7 @@ export function initializeBookSearch() {
 
     try {
       const books = (await request(`/api/books?q=${encodeURIComponent(query)}`)) ?? [];
+      lastQuery = query;
       const total = books.length;
       summaryContainer.replaceChildren(createElement('p', {
         className: 'results-summary',
@@ -254,5 +259,39 @@ export function initializeBookSearch() {
     } finally {
       setBusy(submitButton, false);
     }
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const query = input.value.trim();
+
+    if (query === '') {
+      showInputError('Escriba un título o autor para buscar.');
+      input.focus();
+      return;
+    }
+    if (Array.from(query).length > MAX_SEARCH_LENGTH) {
+      showInputError(`El texto de búsqueda no puede superar ${MAX_SEARCH_LENGTH} caracteres.`);
+      input.focus();
+      return;
+    }
+
+    await runSearch(query);
   });
+
+  return {
+    /** HU-004 (D-25): repite la última búsqueda para que la lista refleje la base de datos. */
+    repeatLastSearch() {
+      return lastQuery === null ? Promise.resolve() : runSearch(lastQuery);
+    },
+    /** HU-004: devuelve el foco al botón "Editar" de esa tarjeta, si sigue en la lista. */
+    focusEditButton(bookId) {
+      for (const button of resultsContainer.querySelectorAll('[data-book-id]')) {
+        if (button.dataset.bookId === String(bookId)) {
+          button.focus();
+          return;
+        }
+      }
+    },
+  };
 }

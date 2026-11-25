@@ -10,7 +10,7 @@
 | **Estado** | Aprobado |
 | **Fecha** | 07/11/2026 |
 | **Base** | SPEC-000-foundation v2.1 |
-| **Archivo** | `docs/specifications/SPEC-001-acceso-registro-busqueda.md` |
+| **Archivo** | `docs/SPECT/SPECT-001-acceso-registro-busqueda.md` |
 
 ## 2. Propósito y HU relacionadas
 
@@ -31,7 +31,7 @@ Este documento es estable. El estado de las tareas se lleva en `docs/sprint/SPRI
 | ID | Decisión |
 |---|---|
 | D-01 | Los duplicados ignoran mayúsculas, tildes y espacios sobrantes, según SPEC-000 §10 (#1 y #6). Se ajustan HU-002 RN-008, HU-006 RN-003 y HU-004 (ver Anexo B). |
-| D-02 | En el Sprint 1 solo se verifica la **visibilidad de acciones por perfil**. "Ver información", "Editar" y "Eliminar" no existen todavía. HU-006 CA-009 y CA-010 se cierran por completo en el Sprint 2. |
+| D-02 | En el Sprint 1 solo se verifica la **visibilidad de acciones por perfil**. "Ver información", "Editar" y "Eliminar" no existen todavía. En el Sprint 2 se completan «Editar» y «Eliminar» (HU-004 y HU-005); «Ver información» llega con la capacidad 7. HU-006 CA-009 y CA-010 se cierran por completo cuando exista esa capacidad. |
 | D-03 | La descripción admite hasta 2000 caracteres. |
 | D-04 | El cierre de sesión se incluye en el Sprint 1. Se añade un CA a HU-001. |
 | D-05 | `books.shelf_label` existe como columna nullable. No se crea ningún endpoint para asignarla. |
@@ -40,9 +40,9 @@ Este documento es estable. El estado de las tareas se lleva en `docs/sprint/SPRI
 | D-08 | El limitador de login cuenta solo credenciales fallidas. Credenciales incorrectas responden 401 `INVALID_CREDENTIALS`. |
 | D-09 | `admin/index.html` única, con dos secciones (Buscar y Registrar) que se alternan por JavaScript. |
 | D-10 | Búsqueda: `GET /api/books?q=`, pública, con `q` obligatorio. Se implementa con `instr()` sobre las columnas normalizadas. |
-| D-11 | El esquema base va en `schema.sql`. La tabla `schema_migrations` se crea vacía. La primera migración llegará en el Sprint 2. |
-| D-12 | *(por confirmar)* `create-admin.js` valida la contraseña en caracteres (8 a 72) y además rechaza las que superen 72 **bytes** UTF-8, porque ese es el límite real de bcrypt. |
-| D-13 | *(por confirmar)* Las variables de entorno se leen con `process.loadEnvFile()` nativo de Node.js. No se agrega `dotenv`. |
+| D-11 | El esquema base va en `schema.sql`. La tabla `schema_migrations` se crea vacía. No hay migraciones previstas en el Sprint 2; se definirá cuando haga falta la primera. |
+| D-12 | `create-admin.js` valida la contraseña en caracteres (8 a 72) y además rechaza las que superen 72 **bytes** UTF-8, porque ese es el límite real de bcrypt. |
+| D-13 | Las variables de entorno se leen con `process.loadEnvFile()` nativo de Node.js. No se agrega `dotenv`. |
 
 ## 3. Alcance y fuera de alcance
 
@@ -127,7 +127,7 @@ No se crean directorios nuevos en el código. Se añaden archivos dentro de dire
 | RN-B04 | Si el texto buscado queda vacío tras normalizarlo (vacío, solo espacios o solo marcas diacríticas), no se ejecuta la búsqueda ni se devuelve el catálogo. Máximo 200 caracteres (D-06). |
 | RN-B05 | Cada resultado incluye título, autor, cantidad y estante. Los libros agotados o sin estante siempre pueden aparecer. |
 | RN-B06 | Orden: título normalizado, luego autor normalizado y, para desempate total, el identificador. Sin paginación ni límite. |
-| RN-B07 | Acciones por perfil (D-02): la interfaz del estudiante nunca incluye "Editar" ni "Eliminar". En el Sprint 1 no se muestran acciones para ningún perfil, porque no existen. La tarjeta del administrador deja listo el contenedor de acciones para el Sprint 2. |
+| RN-B07 | Acciones por perfil (D-02): la interfaz del estudiante nunca incluye "Editar" ni "Eliminar". En el Sprint 1 no se muestran acciones para ningún perfil, porque no existen. La tarjeta del administrador deja listo el contenedor de acciones para el Sprint 2. A partir del Sprint 2, RN-T07 de SPEC-002 sustituye a esta regla. |
 
 ### 4.4. Reglas transversales
 
@@ -348,7 +348,7 @@ El formulario usa `novalidate`: la validación visible es la propia (los mismos 
 |---|---|
 | Éxito (201) | Mensaje: "Libro registrado correctamente: «título» de autor, N ejemplares." Se muestran los datos devueltos por el servidor. El formulario se vacía y el foco vuelve a "Título". |
 | 400 | Cada mensaje junto a su campo, con `aria-describedby`. Resumen de error. El foco va al primer campo inválido. Se conservan los valores escritos. |
-| 409 | Alerta: "Ese libro ya existe. Edite el libro existente." Se conservan los valores. Sin enlace de edición (llega en el Sprint 2). |
+| 409 | Alerta: "Ese libro ya existe. Edite el libro existente." Se conservan los valores. Sin enlace de edición: la respuesta no devuelve el identificador del libro existente. |
 | 401 | `api.js` redirige a `/login.html`. |
 | Otro error | "No se pudo registrar el libro. Inténtelo de nuevo." |
 
@@ -384,12 +384,12 @@ Usa `base.css`, `layout.css`, `components.css` y `public.css`. Entrada: `public/
 
 ### 7.4. Búsqueda del administrador, sección de `admin/index.html` (HU-006)
 
-Mismas reglas, estados y textos que la 7.3, con la misma tarjeta. Cada pantalla conecta su formulario en `admin/books.js`. La tarjeta del administrador incluye un contenedor de acciones vacío, que se rellena en el Sprint 2 con "Ver información", "Editar" y "Eliminar" (D-02). La búsqueda usa el mismo endpoint público. Una sesión vencida se detecta al recargar la página o al realizar una operación de modificación.
+Mismas reglas, estados y textos que la 7.3, con la misma tarjeta. Cada pantalla conecta su formulario en `admin/books.js`. La tarjeta del administrador incluye un contenedor de acciones vacío, que se rellena en el Sprint 2 con "Ver información", "Editar" y "Eliminar" (D-02). La búsqueda usa el mismo endpoint público. Una sesión vencida se detecta al recargar la página o al realizar una operación de modificación. RN-T07 de SPEC-002 sustituye a RN-B07 a partir del Sprint 2.
 
 ### 7.5. Base de interfaz mínima
 
 - **Tokens** (`base.css`): se definen todos los de SPEC-000 §9.2. Sus valores iniciales se validan en el andamiaje (contraste mínimo 4.5:1 para texto normal).
-- **Componentes de este sprint** (`components.css`): botón primario y secundario, campo con etiqueta y mensaje de error, alerta (éxito y error), tarjeta de libro, insignia "agotado" y estados vacío, cargando y error. El botón de peligro y el panel de detalle quedan para el Sprint 2.
+- **Componentes de este sprint** (`components.css`): botón primario y secundario, campo con etiqueta y mensaje de error, alerta (éxito y error), tarjeta de libro, insignia "agotado" y estados vacío, cargando y error. El botón de peligro llega en el Sprint 2 (SPEC-002). El panel de detalle llega con la capacidad 7.
 - **JavaScript compartido:** `api.js` y `utils.js` según SPEC-000 §9.5, más `book-card.js` y `search-view.js` (§3.4). Los módulos de cada área no llaman a `fetch` directamente.
 - **Rutas relativas** en los recursos, según SPEC-000 §9.4.
 
@@ -599,9 +599,9 @@ Se aplica la Definition of Done de SPEC-000 §7 completa para este incremento:
 | §7.6 Documentación y Git | Sí. Ramas y commits según SPEC-000 §6. |
 | §7.7 Cierre de SPEC-000 | No aplica. |
 
-**Excepción declarada:** HU-006 CA-009 y CA-010 se consideran **parcialmente verificadas** al cierre del Sprint 1 (D-02) y se cierran por completo en el Sprint 2.
+**Excepción declarada:** HU-006 CA-009 y CA-010 se consideran **parcialmente verificadas** al cierre del Sprint 1 (D-02). En el Sprint 2 se completan «Editar» y «Eliminar»; se cierran por completo con la capacidad 7.
 
-**Cierre de esta especificación:** el archivo existe en `docs/specifications/`, fue aprobado por el equipo y se registró con un commit `docs:` en la rama correspondiente.
+**Cierre de esta especificación:** el archivo existe en `docs/SPECT/`, fue aprobado por el equipo y se registró con un commit `docs:` en la rama correspondiente.
 
 ---
 
@@ -615,7 +615,7 @@ Se aplica la Definition of Done de SPEC-000 §7 completa para este incremento:
 | | CA-004 Admin sin sesión | §6.4, §6.2, §8.1 | PA-08, PA-09, PA-10, PA-19, V-01 | T-11, T-13 |
 | | CA-005 Consulta sin sesión | §6.3, RN-A11 | PA-11, PC-13, V-08 | T-20, T-23 |
 | | CA-006 Continuidad y vencimiento | §8.1, §6.4 | PA-12, PA-13, V-05 | T-09, T-11, T-13 |
-| | CA-007 Cierre de sesión *(propuesto, D-04)* | §6.5, §7.2 | PA-20, V-06 | T-14 |
+| | CA-007 Cierre de sesión | §6.5, §7.2 | PA-20, V-06 | T-14 |
 | HU-002 | CA-001 Registro exitoso | §5.2, §6.2, §7.2 | PB-01, PB-05, V-09 | T-15 a T-18 |
 | | CA-002 Sin descripción | §5.2, §6.2 | PB-02, V-10 | T-15, T-18 |
 | | CA-003 Campos vacíos | §4.2, §6.2, §7.2 | PB-03, PB-06, V-11 | T-15, T-17, T-18 |
@@ -640,18 +640,18 @@ Se aplica la Definition of Done de SPEC-000 §7 completa para este incremento:
 
 ### B.1. Ajustes a las HU (requieren autorización escrita)
 
-| Documento | Ajuste |
-|---|---|
-| HU-001, HU-002, HU-006 | Actualizar la referencia a SPEC-000 de v2.0 a v2.1. |
-| HU-001 | Dependencias: el procedimiento para crear cuentas ya está definido (`scripts/create-admin.js`). Las sesiones se guardan en `data/sessions.sqlite`, gestionadas por `connect-sqlite3`, fuera de `schema.sql`. RN-007: el umbral del limitador queda fijado en 5 intentos fallidos por IP cada 15 minutos. |
-| HU-001 | Añadir **CA-007 Cierre de sesión**: *Dado que el administrador tiene una sesión válida, cuando elige cerrar sesión, entonces el sistema destruye la sesión, borra la cookie y lo lleva a la página de inicio de sesión; al abrir de nuevo el área de administración, exige iniciar sesión.* Quitar "Cierre de sesión" de Fuera de Alcance. |
-| HU-002 | RN-008: sustituir la última frase por la regla de SPEC-000 §10 #1 (la comparación también ignora tildes y espacios internos repetidos). |
-| HU-002 | CA-004: añadir el tope de 999 (la cantidad debe ser un entero entre 1 y 999). |
-| HU-002 | RN-007: los límites de longitud quedan fijados: título 200, autor 150, descripción 2000. |
-| HU-006 | RN-003: sustituir la última frase para que no diga que los duplicados no equiparan tildes. |
-| HU-006 | CA-009 y CA-010: anotar que el Sprint 1 verifica la visibilidad por perfil y que las opciones se completan en el Sprint 2. |
-| HU-006 | RN-004: la longitud máxima del texto queda fijada en 200. |
-| HU-004 | Aplicar la misma regla de duplicados de D-01 al revisarla en el Sprint 2. |
+| Documento | Ajuste | Aplicado |
+|---|---|---|
+| HU-001, HU-002, HU-006 | Actualizar la referencia a SPEC-000 de v2.0 a v2.1. | Si / 20/11/2926 |
+| HU-001 | Dependencias: el procedimiento para crear cuentas ya está definido (`scripts/create-admin.js`). Las sesiones se guardan en `data/sessions.sqlite`, gestionadas por `connect-sqlite3`, fuera de `schema.sql`. RN-007: el umbral del limitador queda fijado en 5 intentos fallidos por IP cada 15 minutos. | Si / 20/11/2926 |
+| HU-001 | Añadir **CA-007 Cierre de sesión**: *Dado que el administrador tiene una sesión válida, cuando elige cerrar sesión, entonces el sistema destruye la sesión, borra la cookie y lo lleva a la página de inicio de sesión; al abrir de nuevo el área de administración, exige iniciar sesión.* Quitar "Cierre de sesión" de Fuera de Alcance. | Si / 20/11/2926 |
+| HU-002 | RN-008: sustituir la última frase por la regla de SPEC-000 §10 #1 (la comparación también ignora tildes y espacios internos repetidos). | Si / 20/11/2926 |
+| HU-002 | CA-004: añadir el tope de 999 (la cantidad debe ser un entero entre 1 y 999). | Si / 20/11/2926 |
+| HU-002 | RN-007: los límites de longitud quedan fijados: título 200, autor 150, descripción 2000. | Si / 20/11/2926 |
+| HU-006 | RN-003: sustituir la última frase para que no diga que los duplicados no equiparan tildes. | Si / 20/11/2926 |
+| HU-006 | CA-009 y CA-010: anotar que el Sprint 1 verifica la visibilidad por perfil y que las opciones se completan en el Sprint 2. | Si / 20/11/2926 |
+| HU-006 | RN-004: la longitud máxima del texto queda fijada en 200. | Si / 20/11/2926 |
+| HU-004 | Aplicar la misma regla de duplicados de D-01 al revisarla en el Sprint 2. | Si / 20/11/2926 |
 
 ### B.2. Actualizaciones propuestas a SPEC-000
 
@@ -668,6 +668,6 @@ Conforme a SPEC-000 §12.3, este SPEC-001 declara estas extensiones y propone ac
 
 ### B.3. Nombres de archivo (cosmético)
 
-Los archivos recibidos son `SPECT-000-Fundation.md`, `HU-001-InicioSesion.md`, etc. SPEC-000 §5.6 pide minúsculas, guiones y sin tildes (por ejemplo `SPEC-000-foundation.md`, `HU-001-inicio-de-sesion.md`). Se propone renombrarlos al guardarlos en `docs/specifications/`.
+Los nombres de archivo existentes (`SPECT-001-Acceso-Registro-Busqueda.md`, `HU-001-InicioSesion.md`, etc.) se conservan. SPEC-000 §5.6 se ajusta a esa convención.
 
 **Fin de SPEC-001-acceso-registro-busqueda.md (v0.1, borrador)**

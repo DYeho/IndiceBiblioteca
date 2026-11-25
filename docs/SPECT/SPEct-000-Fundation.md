@@ -153,7 +153,11 @@ indice-biblioteca/
 │   └── books/
 │
 ├── docs/
-│   └── specifications/
+│   ├── SPECT/
+│   ├── product/
+│   ├── user-history/
+│   └── sprint/
+
 │
 ├── data/
 │   └── .gitkeep
@@ -167,7 +171,7 @@ indice-biblioteca/
 
 **Nota sobre archivos de la raíz:** `.env` existe solo en cada entorno y **no se versiona** (debe figurar en `.gitignore`). Lo que se versiona es `.env.example`, con los nombres de las variables y sin valores sensibles. De igual forma, `data/` se versiona únicamente por su `.gitkeep`; los archivos de base de datos y de sesiones nunca.
 
-**Nota sobre archivos adicionales:** otras utilidades del backend (por ejemplo, la normalización de texto de §10) se ubican en `src/utils/` sin modificar la estructura. Cualquier otro directorio nuevo exige actualizar esta especificación.
+**Nota sobre archivos adicionales:** otras utilidades del backend (por ejemplo, la normalización de texto de §10) se ubican en `src/utils/` sin modificar la estructura. Cualquier otro directorio nuevo exige actualizar esta especificación. Dentro de los directorios existentes se pueden añadir archivos nuevos (por ejemplo, middlewares compartidos o módulos compartidos del frontend) sin actualizarla.
 
 ### 3.1. Responsabilidades de los directorios
 
@@ -188,7 +192,9 @@ indice-biblioteca/
 | `src/utils/` | Utilidades compartidas del backend. |
 | `scripts/` | Scripts de línea de comandos para operación técnica (inicializar la base de datos, crear cuentas de Administración). No se exponen por HTTP. |
 | `tests/` | Pruebas automatizadas, organizadas por módulo. |
-| `docs/specifications/` | Especificaciones del proyecto. |
+| `docs/SPECT/` | Especificaciones y historias de usuario del proyecto. |
+| `docs/product/` | Product Backlog (`ProductBacklog.md`). |
+| `docs/sprint/` | Backlog de cada sprint (`SPRINT-NNN-backlog.md`). |
 | `data/` | Almacenamiento privado de las bases de datos. No es público. |
 
 ### 3.2. Organización interna del backend
@@ -348,7 +354,7 @@ Todas las respuestas de `/api` son JSON con una de estas estructuras.
 | 201 | Recurso creado. | — |
 | 204 | Eliminación exitosa, sin cuerpo. | — |
 | 400 | Datos inválidos o malformados. | `VALIDATION_ERROR` |
-| 401 | Sin sesión válida. | `UNAUTHENTICATED` |
+| 401 | Sin sesión válida, o credenciales incorrectas en el inicio de sesión. | `UNAUTHENTICATED` o `INVALID_CREDENTIALS` |
 | 403 | Sesión válida pero sin permiso, o verificación de origen fallida. | `FORBIDDEN` |
 | 404 | Recurso no encontrado. | `NOT_FOUND` |
 | 409 | Conflicto (por ejemplo, libro duplicado). | `CONFLICT` |
@@ -380,7 +386,7 @@ Los valores numéricos son iniciales y pueden ajustarse en la especificación de
 
 ### 4.9. Variables de entorno
 
-`src/config/env.js` lee y valida las variables al arrancar. Si falta una obligatoria, la aplicación no inicia y lo indica con un mensaje claro. `.env.example` lista los nombres sin valores sensibles.
+`src/config/env.js` lee las variables con `process.loadEnvFile()` (nativo de Node.js, sin `dotenv`) y las valida al arrancar. Si falta una obligatoria, la aplicación no inicia y lo indica con un mensaje claro. `.env.example` lista los nombres sin valores sensibles.
 
 | Variable | Obligatoria | Descripción |
 |---|:---:|---|
@@ -414,7 +420,7 @@ Las variables de las capacidades Posteriores (clave del servicio de IA, límites
 
 ### 4.12. Node.js y scripts npm
 
-- `package.json` declara `"type": "module"` y el campo `engines` con la versión LTS de Node.js vigente al iniciar el desarrollo (el número exacto se fija en el incremento de andamiaje).
+- `package.json` declara `"type": "module"` y el campo `engines` con la versión LTS de Node.js vigente al iniciar el desarrollo (Node.js v22.15.1; `engines`: `>=22.15.1`).
 - Scripts npm obligatorios:
 
 | Script | Función |
@@ -471,8 +477,8 @@ Se usan `import` y `export` de ES Modules en todo el proyecto. No se usa CommonJ
 
 - Especificaciones técnicas: `SPEC-NNN-nombre.md`, con identificador único y propósito claro. Secuencia: `SPEC-000-foundation.md`, `SPEC-001-[nombre].md`, `SPEC-002-[nombre].md`.
 - Historias de usuario: `HU-NNN-nombre.md`. La numeración sigue la del Product Backlog (por ejemplo, `HU-001-inicio-de-sesion.md` corresponde a la capacidad 1).
-- Los nombres de archivo van en minúsculas, con guiones y sin tildes.
-- Ambos tipos de documento se guardan en `docs/specifications/`.
+- Los nombres de archivo van con guiones y sin tildes. Se conservan los nombres ya existentes (por ejemplo, `SPECT-001-Acceso-Registro-Busqueda.md` y `HU-001-InicioSesion.md`).
+- Las especificaciones se guardan en `docs/SPECT/` (archivos `SPECT-NNN-Nombre.md`) y las historias de usuario en `docs/user-history/`. En el texto de los documentos se citan como SPEC-NNN y HU-NNN. El Product Backlog va en `docs/product/` y el backlog de cada sprint (`SPRINT-NNN-backlog.md`) en `docs/sprint/`.
 - Cada especificación técnica (SPEC) indica versión, estado y fecha.
 
 ## 6. Convenciones de Git
@@ -574,7 +580,7 @@ Aplica a incrementos que modifican páginas HTML, CSS o JavaScript del frontend.
 
 ### 7.7. Criterio de cierre de esta especificación
 
-Se considera cumplida cuando: (a) el archivo existe en `docs/specifications/SPEC-000-foundation.md`, (b) fue revisado y aprobado por el equipo, y (c) fue registrado con un commit `docs:` en la rama correspondiente.
+Se considera cumplida cuando: (a) el archivo existe en `docs/SPECT/SPEC-000-foundation.md`, (b) fue revisado y aprobado por el equipo, y (c) fue registrado con un commit `docs:` en la rama correspondiente.
 
 ## 8. Fuera de alcance
 
@@ -668,7 +674,7 @@ Todas las páginas (`index.html`, `login.html`, `admin/index.html`) comparten es
 - Enlace «Saltar al contenido» como primer elemento de `<body>`.
 - Regiones semánticas: `<header>`, `<main id="contenido">` y `<footer>`.
 - Un único `<script type="module">` con `src` al módulo de entrada del área (`public/js/public/main.js` o `public/js/admin/main.js`; en `login.html`, `public/js/admin/auth.js`).
-- - Las rutas de recursos y los enlaces entre páginas son **relativas** (`./css/base.css` en `public/`; `../css/base.css` en `public/admin/`), de modo que las páginas funcionen tanto con Express como con un servidor estático abierto desde la raíz del proyecto durante el desarrollo.
+- Las rutas de recursos y los enlaces entre páginas son **relativas** (`./css/base.css` en `public/`; `../css/base.css` en `public/admin/`), de modo que las páginas funcionen tanto con Express como con un servidor estático abierto desde la raíz del proyecto durante el desarrollo.
 
 ### 9.5. Módulos JavaScript compartidos
 
@@ -687,13 +693,13 @@ Decisiones confirmadas que cada SPEC funcional debe respetar y detallar.
 | # | Tema | Decisión |
 |---|---|---|
 | 1 | Duplicados | No se permiten. Un duplicado es el mismo título y autor, comparados sin distinguir mayúsculas, acentos ni espacios sobrantes. Se aplica en el servicio y con una restricción `UNIQUE` en la base de datos. Respuesta: 409 `CONFLICT`. |
-| 2 | Listado | No existe listado completo del catálogo. Se llega a los libros solo mediante búsqueda (Estudiantes y Administración). |
+| 2 | Listado | No existe listado completo del catálogo. Se llega a los libros solo mediante búsqueda (Estudiantes y Administración). Única excepción: la Administración, con sesión válida, dispone de las listas de asignación de estante (libros sin estante y libros con estante). Los estudiantes no tienen ningún listado. |
 | 3 | Detalle del libro | Es un panel dentro de `index.html` (y el mismo patrón en `admin/index.html`), no una página propia. Muestra el estante asignado, si lo tiene. |
 | 4 | Estante | Etiqueta de texto libre asignada al libro. No es una entidad ni se gestiona por separado. |
 | 5 | Búsqueda | Coincidencia parcial, sin distinguir mayúsculas ni acentos, sobre título y autor. Se implementa con columnas normalizadas (`title_normalized`, `author_normalized`), no con FTS5. |
 | 6 | Normalización de texto | Recortar espacios, colapsar espacios internos, pasar a minúsculas y eliminar marcas diacríticas (descomposición Unicode NFD). Una única función en `src/utils/` la implementa y la usan tanto la búsqueda como la detección de duplicados. |
 | 7 | Eliminación | Borrado físico, con confirmación previa en la interfaz. Es la única vía para retirar un título agotado. |
-| 8 | Cuentas | Contraseña de 8 a 72 caracteres (72 es el límite de bcrypt). Cambio de contraseña y desactivación de cuentas quedan fuera del MVP. |
+| 8 | Cuentas | Contraseña de 8 a 72 caracteres y no más de 72 bytes en UTF-8 (72 bytes es el límite de bcrypt). Cambio de contraseña y desactivación de cuentas quedan fuera del MVP. |
 
 **Límites de campos:**
 
@@ -701,6 +707,7 @@ Decisiones confirmadas que cada SPEC funcional debe respetar y detallar.
 |---|---|
 | Título | Obligatorio, máximo 200 caracteres. |
 | Autor | Obligatorio, máximo 150 caracteres. |
+| Descripción | Opcional, máximo 2000 caracteres. |
 | Estante | Opcional, máximo 30 caracteres. |
 | Cantidad | Entero de 0 a 999 (`MAX_BOOK_QUANTITY = 999`). Mínimo **1 al registrar**; **0 solo al editar** (el libro se muestra como «agotado»). |
 

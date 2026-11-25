@@ -13,7 +13,14 @@ import { createAuthRouter } from './modules/auth/auth.routes.js';
 import { createBooksRepository } from './modules/books/books.repository.js';
 import { createBooksService } from './modules/books/books.service.js';
 import { createBooksController } from './modules/books/books.controller.js';
-import { registerBooksRoutes, registerBookSearchRoutes } from './modules/books/books.routes.js';
+import {
+  registerBooksRoutes,
+  registerBookSearchRoutes,
+  registerBookShelfRoutes,
+  registerBookEditRoutes,
+  registerBookDeleteRoutes,
+} from './modules/books/books.routes.js';
+import { registerShelfAssignmentsRoutes } from './modules/books/shelf-assignments.routes.js';
 import { normalizeText } from './utils/normalize-text.js';
 import { unauthenticated } from './utils/errors.js';
 
@@ -53,7 +60,7 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
           upgradeInsecureRequests: env.nodeEnv === 'production' ? [] : null,
         },
       },
-    })
+    }),
   );
 
   // 3. Session.
@@ -74,6 +81,19 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
       next(error?.code === 'UNAUTHENTICATED' ? unauthenticated('Debe iniciar sesión.') : error);
     });
   });
+  // HU-003: the session is checked before origin, content type and body, as in POST /books (SPEC-002 §6).
+  const requireAdminSession = (req, res, next) => {
+    requireAdmin(req, res, (error) => {
+      next(error?.code === 'UNAUTHENTICATED' ? unauthenticated('Debe iniciar sesión.') : error);
+    });
+  };
+  api.put('/books/:id/shelf', requireAdminSession);
+  if (!routers.books) {
+    api.get('/books/:id', requireAdminSession);
+    api.put('/books/:id', requireAdminSession, express.json({ limit: '16kb', strict: false }));
+    // HU-005: the session is checked before origin and content type, so 401 prevails (SPEC-002 §6.5).
+    api.delete('/books/:id', requireAdminSession);
+  }
   api.use(express.json({ limit: '16kb' }));
   api.use(verifyOriginAndContentType({ allowedOrigin: env.allowedOrigin }));
 
@@ -84,22 +104,32 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
       authController: createAuthController({ authService, clearSessionCookie: session.clearSessionCookie }),
       requireAdmin,
       loginLimiter,
-    })
+    }),
   );
   // POST /api/books (admin registration, HU-002) and GET /api/books (public search, HU-006).
+  const booksController = createBooksController({
+    service: createBooksService({ repository: createBooksRepository(db), normalizeText }),
+  });
   let booksRouter = routers.books;
   if (!booksRouter) {
-    const booksController = createBooksController({
-      service: createBooksService({ repository: createBooksRepository(db), normalizeText }),
-    });
     booksRouter = registerBooksRoutes(express.Router(), { requireAdmin, controller: booksController });
     registerBookSearchRoutes(booksRouter, { controller: booksController });
+    registerBookShelfRoutes(booksRouter, { requireAdmin: requireAdminSession, controller: booksController });
+    registerBookEditRoutes(booksRouter, { requireAdmin: requireAdminSession, controller: booksController });
+    registerBookDeleteRoutes(booksRouter, { requireAdmin: requireAdminSession, controller: booksController });
   }
   api.use('/books', booksRouter);
+  // GET /api/shelf-assignments (HU-003, admin only).
+  api.use(
+    '/shelf-assignments',
+    registerShelfAssignmentsRoutes(express.Router(), { requireAdmin: requireAdminSession, controller: booksController }),
+  );
 
   // 6. JSON 404 for the rest of /api.
   api.use(notFoundApi);
   app.use('/api', api);
+  // /login (no extension) is not a page: send it to the login page.
+  app.get('/login', (req, res) => res.redirect(302, '/login.html'));
 
   // 7. /admin guard, before the static files.
   app.use(adminPageGuard);

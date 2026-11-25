@@ -1,6 +1,9 @@
 import { request, ApiError } from '../shared/api.js';
 import { createElement, setBusy, showMessage } from '../shared/utils.js';
 import { initializeBookRegistration, initializeBookSearch } from './books.js';
+import { initializeBookEdit } from './book-edit.js';
+import { initializeShelfAssignments } from './shelves.js';
+import { initializeBookDelete } from './book-delete.js';
 
 const sectionButtons = document.querySelectorAll('[data-section]');
 const logoutButton = document.getElementById('logout');
@@ -33,20 +36,47 @@ logoutButton?.addEventListener('click', async () => {
   }
 });
 
-// Only one section is visible at a time (D-09). "Buscar libros" is shown on load.
+// Four sections, one visible at a time (D-23). "Buscar libros" is shown on load.
+// "Editar libro" has no header button: while it is visible, its origin ("Buscar libros") is marked.
+const SECTION_NAMES = ['buscar', 'registrar', 'asignar', 'editar'];
+const shelves = initializeShelfAssignments();
+// Sections that reload their content every time their button is pressed.
+const onButtonPress = { asignar: () => shelves.show() };
+
 function showSection(name) {
+  const markedButton = name === 'editar' ? 'buscar' : name;
+  for (const sectionName of SECTION_NAMES) {
+    const section = document.getElementById(`seccion-${sectionName}`);
+    if (section) section.hidden = sectionName !== name;
+  }
   for (const button of sectionButtons) {
-    const active = button.dataset.section === name;
-    const section = document.getElementById(`seccion-${button.dataset.section}`);
-    if (section) section.hidden = !active;
-    if (active) button.setAttribute('aria-current', 'page');
+    if (button.dataset.section === markedButton) button.setAttribute('aria-current', 'page');
     else button.removeAttribute('aria-current');
   }
+  if (name !== 'asignar') shelves.closeMenu();
 }
 
 for (const button of sectionButtons) {
-  button.addEventListener('click', () => showSection(button.dataset.section));
+  button.addEventListener('click', () => {
+    showSection(button.dataset.section);
+    onButtonPress[button.dataset.section]?.();
+  });
 }
 showSection('buscar');
-initializeBookSearch();
+// HU-004: «Editar» en una tarjeta abre la sección «Editar libro» (D-23).
+const edit = initializeBookEdit({
+  showSection,
+  messages: getMessagesContainer(),
+  repeatSearch: () => search.repeatLastSearch(),
+  focusEditButton: (bookId) => search.focusEditButton(bookId),
+});
+// HU-005: «Eliminar» en una tarjeta abre el diálogo de confirmación (D-24).
+const deletion = initializeBookDelete({
+  messages: getMessagesContainer(),
+  repeatSearch: () => search.repeatLastSearch(),
+});
+const search = initializeBookSearch({
+  onEdit: (book) => edit.open(book.id),
+  onDelete: (book, button) => deletion.open(book, button),
+});
 initializeBookRegistration();
