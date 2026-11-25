@@ -147,6 +147,16 @@ export function createBooksService({ repository, normalizeText }) {
     },
 
     /**
+     * HU-005: elimina un libro (SPEC-002 §6.5). Una sola sentencia: si no afecta ninguna fila,
+     * el libro no existe (o ya fue eliminado) y se responde 404 (D-19, D-20).
+     * @param {unknown} rawId identificador de la ruta
+     */
+    deleteBook(rawId) {
+      const id = parseBookId(rawId);
+      if (id === null || !repository.deleteById(id)) throw notFound(BOOK_NOT_FOUND_MESSAGE);
+    },
+
+    /**
      * HU-003: lista los libros sin estante (`unassigned`) o con estante (`assigned`) (SPEC-002 §6.1).
      * @param {unknown} rawStatus valor de req.query.status (puede ser undefined o un arreglo)
      * @returns {{ books: object[], total: number }}

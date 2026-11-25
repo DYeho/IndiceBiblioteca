@@ -83,6 +83,8 @@ export function createBooksRepository(database, { now = () => new Date().toISOSt
     SET shelf_label = @shelfLabel, updated_at = @updatedAt
     WHERE id = @id AND shelf_label IS NOT @shelfLabel
   `);
+  // HU-005 (T-37): borrado físico en una sola sentencia (D-19, RN-D07).
+  const deleteBookStatement = database.prepare('DELETE FROM books WHERE id = ?');
 
   return {
     findByNormalizedKey(titleNormalized, authorNormalized, excludedId = null) {
@@ -120,6 +122,13 @@ export function createBooksRepository(database, { now = () => new Date().toISOSt
     updateShelf(id, shelfLabel) {
       updateShelfStatement.run({ id, shelfLabel, updatedAt: now() });
       return this.findById(id);
+    },
+    /**
+     * HU-005: elimina la fila completa del libro con una sola sentencia.
+     * @returns {boolean} true si se eliminó una fila; false si el libro no existía
+     */
+    deleteById(id) {
+      return deleteBookStatement.run(id).changes > 0;
     },
     /** @param {string} normalizedText texto ya normalizado y no vacío */
     search(normalizedText) {

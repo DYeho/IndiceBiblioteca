@@ -18,6 +18,7 @@ import {
   registerBookSearchRoutes,
   registerBookShelfRoutes,
   registerBookEditRoutes,
+  registerBookDeleteRoutes,
 } from './modules/books/books.routes.js';
 import { registerShelfAssignmentsRoutes } from './modules/books/shelf-assignments.routes.js';
 import { normalizeText } from './utils/normalize-text.js';
@@ -90,6 +91,8 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
   if (!routers.books) {
     api.get('/books/:id', requireAdminSession);
     api.put('/books/:id', requireAdminSession, express.json({ limit: '16kb', strict: false }));
+    // HU-005: the session is checked before origin and content type, so 401 prevails (SPEC-002 §6.5).
+    api.delete('/books/:id', requireAdminSession);
   }
   api.use(express.json({ limit: '16kb' }));
   api.use(verifyOriginAndContentType({ allowedOrigin: env.allowedOrigin }));
@@ -113,6 +116,7 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
     registerBookSearchRoutes(booksRouter, { controller: booksController });
     registerBookShelfRoutes(booksRouter, { requireAdmin: requireAdminSession, controller: booksController });
     registerBookEditRoutes(booksRouter, { requireAdmin: requireAdminSession, controller: booksController });
+    registerBookDeleteRoutes(booksRouter, { requireAdmin: requireAdminSession, controller: booksController });
   }
   api.use('/books', booksRouter);
   // GET /api/shelf-assignments (HU-003, admin only).
