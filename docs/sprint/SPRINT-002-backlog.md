@@ -31,7 +31,7 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 |---|---|---|---|
 | HU-003 | Organizar libros por estante | Terminada | Backend, pruebas y codigo de la interfaz terminados; npm test pasa (84 de 84). |
 | HU-004 | Editar libros registrados | Terminada | Se implementó la edición y se incorporaron la interfaz y las pruebas. |
-| HU-005 | Eliminar libro | Pendiente | |
+| HU-005 | Eliminar libro | Terminada | Backend, interfaz y pruebas PF-01 a PF-11 terminados; `npm test` pasa (117 de 117). |
 | HU-006 | Búsqueda de libros por nombre o autor | Terminada (Sprint 1) | CA-010 se completa en parte: «Editar» y «Eliminar». CA-009 y CA-010 siguen parcialmente verificados hasta que exista «Ver información» (capacidad 7, D-27). |
 
 **Deuda técnica del Sprint 1 incluida en este sprint:** ejecución de las pruebas automatizadas PN, PA, PB y PC, que existen pero no se ejecutaron (T-27).
@@ -56,10 +56,10 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | T-35 | Interfaz: botón «Editar» en la tarjeta del administrador (`admin/books.js`) y sección «Editar libro» (`book-edit.js`), con sus estados y mensajes. | HU-004, HU-006 | T-31, T-34 | `feature/HU-004` | Terminada |
 | T-36 | Pruebas de edición (`tests/books/edit.test.js`, PE-01 a PE-20), ejecutadas con `npm test`. | HU-004 | T-34 | `feature/HU-004` | Terminada |
 | **Bloque D. HU-005** | | | | | |
-| T-37 | `books.repository` y `books.service`: eliminación en una sola sentencia y detección de libro inexistente. | HU-005 | T-29 | `feature/HU-005` | Pendiente |
-| T-38 | Controlador y ruta `DELETE /api/books/:id` con `requireAdmin` (204 o 404). | HU-005 | T-37 | `feature/HU-005` | Pendiente |
-| T-39 | Interfaz: botón de peligro, botón «Eliminar» en la tarjeta del administrador, diálogo de confirmación y mensajes (`book-delete.js`). | HU-005, HU-006 | T-35, T-38 | `feature/HU-005` | Pendiente |
-| T-40 | Pruebas de eliminación (`tests/books/delete.test.js`, PF-01 a PF-11), ejecutadas con `npm test`. | HU-005 | T-38 | `feature/HU-005` | Pendiente |
+| T-37 | `books.repository` y `books.service`: eliminación en una sola sentencia y detección de libro inexistente. | HU-005 | T-29 | `feature/HU-005` | Terminada |
+| T-38 | Controlador y ruta `DELETE /api/books/:id` con `requireAdmin` (204 o 404). | HU-005 | T-37 | `feature/HU-005` | Terminada |
+| T-39 | Interfaz: botón de peligro, botón «Eliminar» en la tarjeta del administrador, diálogo de confirmación y mensajes (`book-delete.js`). | HU-005, HU-006 | T-35, T-38 | `feature/HU-005` | Terminada |
+| T-40 | Pruebas de eliminación (`tests/books/delete.test.js`, PF-01 a PF-11), ejecutadas con `npm test`. | HU-005 | T-38 | `feature/HU-005` | Terminada |
 | **Bloque E. Cierre** | | | | | |
 | T-41 | Verificación manual completa del plan de SPEC-002 §10 (V-29 a V-63), con resultados registrados. | Todas | T-31, T-35, T-39 | `develop` | Pendiente |
 | T-42 | Aplicar las actualizaciones documentales de SPEC-002 Anexo B: SPEC-000 §10 #2 y SPEC-001 (D-11, §7.2, §7.4 y §7.5). Registrar la fecha de cada una. | Todas | Aprobación de SPEC-002 | `docs/spec-002` | Pendiente |
@@ -87,7 +87,7 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 |---|---|---|---|
 | Las pruebas del Sprint 1 fallan al ejecutarse por primera vez, porque nunca se ejecutaron. | T-27 va primero. Los fallos se corrigen antes de empezar HU-003. | Si | Una prueba de books-integration.test.js fallo en Windows porque la carpeta temporal se borraba con el servidor hijo todavia abierto, y cancelo su archivo. Se corrigio antes de empezar HU-003. Resultado 62 de 62. |
 | Falta alguna restricción del esquema (`CHECK` de `shelf_label` o de `quantity`) y no existe ejecutor de migraciones. | T-28 verifica antes de HU-003. Si falta, se detiene el trabajo y se decide, sin improvisar un mecanismo. | No | T-28 verifico en schema.sql y con PB-12 las restricciones quantity de 0 a 999, shelf_label de 1 a 30 con nulo permitido y UNIQUE de titulo y autor autorizados. |
-| Eliminación accidental de datos reales por ser un borrado físico e irreversible. | Confirmación en la interfaz. Todas las verificaciones se hacen sobre la base de **desarrollo**. | | |
+| Eliminación accidental de datos reales por ser un borrado físico e irreversible. | Confirmación en la interfaz. Todas las verificaciones se hacen sobre la base de **desarrollo**. | No | El diálogo de confirmación pide confirmar con título, autor y cantidad, y Cancelar/Escape no envían nada (V-50). Todas las verificaciones de HU-005 se hicieron sobre la base de desarrollo. |
 | Dos cuentas de Administración editan el mismo libro a la vez (gana la última escritura, sin control de versiones). | Riesgo aceptado: no hay historial ni concurrencia en el alcance. Los casos de libro inexistente están cubiertos (404). | | |
 | Las listas de asignación no tienen paginación y pueden ser largas si el catálogo crece. | Aceptado para el catálogo escolar (HU-003 deja fuera la paginación). Se revisa si el catálogo crece. | | |
 | CA-009 y CA-010 de HU-006 siguen sin cerrarse del todo: «Ver información» (capacidad 7) no entra en este sprint. | Cierre parcial documentado (D-27). | | |
@@ -104,15 +104,15 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 |---|---|---|
 | HU-003 | Terminado | PD-01 a PD-20 y dos pruebas de refuerzo en tests/books/shelf.test.js, ejecutadas con npm test (84 de 84). |
 | HU-004 | Terminado | Se aprobaron PE-01 a PE-20 y dos pruebas adicionales de edición en `tests/books/edit.test.js`. |
-| HU-005 | | |
-| HU-006 (CA-009 y CA-010, parcial) | | |
+| HU-005 | Terminado | PF-01 a PF-11 en `tests/books/delete.test.js`, ejecutadas con `npm test` (117 de 117). Verificación manual V-49 a V-54 en §8.5. |
+| HU-006 (CA-009 y CA-010, parcial) | | «Editar» y «Eliminar» completos; falta «Ver información». |
 
 ### 8.3. Pruebas automatizadas
 
 - Comando: `npm test`
-- Fecha, rama y commit: 24/11/2026, `feature/HU-004`, `5c399bb`.
-- Resultado (total / pasan / fallan / omitidas): 106 / 106 / 0 / 0.
-- Ejecutó: Mario Díaz Ramos.
+- Fecha, rama y commit: 25/11/2026, `feature/HU-005`, `2747d2e`.
+- Resultado (total / pasan / fallan / omitidas): 117 / 117 / 0 / 0.
+- Ejecutó: Leonardo Emilio García Balderas.
 - Pruebas que no se ejecutaron o fallan: ninguna en la suite ejecutada.
 
 ### 8.4. Pruebas del Sprint 1 (deuda técnica, T-27)
@@ -136,9 +136,9 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 |---|---|---|---|---|
 | V-29 a V-38 (HU-003) | | | | |
 | V-39 a V-48 (HU-004) | 8 aprobadas, 1 parcial y 1 pendiente | Mario Díaz Ramos | 24/11/2026 | Se aprobaron V-39, V-41 a V-45, V-47 y V-48. V-40 (parcial): se verificó el guardado y la persistencia tras recargar y volver a buscar el libro. Queda pendiente verificar la persistencia tras reiniciar el servidor. V-46: queda pendiente de verificación conjunta con HU-005. |
-| V-49 a V-54 (HU-005) | | | | |
-| V-55 a V-58 (perfiles y acceso) | | | | |
-| V-59 a V-63 (interfaz) | | | | |
+| V-49 a V-54 (HU-005) | 6 aprobadas, 0 pendientes | Leonardo Emilio García Balderas | 25/11/2026 | Aprobadas: V-49, V-50, V-51, V-52, V-53 y V-54. Pendientes: ninguna. |
+| V-55 a V-58 (perfiles y acceso) | | | | Ejecutadas y aprobadas en el contexto de HU-005 por Leonardo Emilio García Balderas (25/11/2026). |
+| V-59 a V-63 (interfaz) | | | | Ejecutadas y aprobadas en el contexto de HU-005 por Leonardo Emilio García Balderas (25/11/2026). |
 
 ### 8.6. Definition of Done (SPEC-000 §7)
 
@@ -146,14 +146,14 @@ El Sprint 2 se da por cerrado cuando HU-003, HU-004 y HU-005 están **Terminadas
 |---|---|---|
 | §7.1 Código | | |
 | §7.2 Calidad | | |
-| §7.3 Seguridad | | |
-| §7.4 Base de datos | | |
+| §7.3 Seguridad | | HU-005: DELETE con requireAdmin, consulta parametrizada, id validado como entero positivo, salida con textContent. |
+| §7.4 Base de datos | | HU-005: sin cambios de esquema; persistencia verificada (PF-04). |
 | §7.5 Interfaz | | |
 | §7.6 Documentación y Git | | |
 
 ### 8.7. Excepción declarada
 
-HU-006 CA-009 y CA-010: parcialmente verificadas (D-27). «Editar» y «Eliminar» se completan en este sprint. Pendiente de cierre: «Ver información» (capacidad 7).
+HU-006 CA-009 y CA-010: parcialmente verificadas (D-27). «Editar» (HU-004) y «Eliminar» (HU-005) completos en este sprint; pendiente de cierre: «Ver información» (capacidad 7).
 
 ### 8.8. Actualizaciones documentales (T-42)
 
