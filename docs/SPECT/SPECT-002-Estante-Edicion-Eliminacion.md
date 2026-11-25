@@ -579,16 +579,16 @@ Conforme a SPEC-000 §12.3, este SPEC-002 declara una excepción y propone actua
 
 | Sección | Propuesta | Aplicado |
 |---|---|---|
-| §10 #2 (Listado) | Añadir la excepción de las listas de asignación para la Administración (D-14): «No existe listado completo del catálogo. Se llega a los libros solo mediante búsqueda (Estudiantes y Administración). Única excepción: la Administración, con sesión válida, dispone de las listas de asignación de estante (libros sin estante y libros con estante). Los estudiantes no tienen ningún listado.» | Terminado |
+| §10 #2 (Listado) | Añadir la excepción de las listas de asignación para la Administración (D-14): «No existe listado completo del catálogo. Se llega a los libros solo mediante búsqueda (Estudiantes y Administración). Única excepción: la Administración, con sesión válida, dispone de las listas de asignación de estante (libros sin estante y libros con estante). Los estudiantes no tienen ningún listado.» | Terminado (20/11/2026; párrafo duplicado retirado el 25/11/2026) |
 
 ### B.2. Ajustes propuestos a SPEC-001
 
 | Sección | Ajuste | Aplicado |
 |---|---|---|
-| §2.1, D-11 | Sustituir «La primera migración llegará en el Sprint 2» por «No hay migraciones previstas en el Sprint 2; se definirá cuando haga falta la primera» (D-22). | Terminado |
-| §7.2, mensaje 409 | Sustituir «Sin enlace de edición (llega en el Sprint 2)» por «Sin enlace de edición: la respuesta no devuelve el identificador del libro existente» (D-26). | Terminado |
-| §7.5, componentes | Sustituir «El botón de peligro y el panel de detalle quedan para el Sprint 2» por «El botón de peligro llega en el Sprint 2 (SPEC-002). El panel de detalle llega con la capacidad 7» (D-27). | Terminado |
-| §7.4 y RN-B07 | Anotar que RN-T07 de SPEC-002 sustituye a RN-B07 a partir del Sprint 2. | Terminado |
+| §2.1, D-11 | Sustituir «La primera migración llegará en el Sprint 2» por «No hay migraciones previstas en el Sprint 2; se definirá cuando haga falta la primera» (D-22). | Terminado (20/11/2026) |
+| §7.2, mensaje 409 | Sustituir «Sin enlace de edición (llega en el Sprint 2)» por «Sin enlace de edición: la respuesta no devuelve el identificador del libro existente» (D-26). | Terminado (20/11/2026) |
+| §7.5, componentes | Sustituir «El botón de peligro y el panel de detalle quedan para el Sprint 2» por «El botón de peligro llega en el Sprint 2 (SPEC-002). El panel de detalle llega con la capacidad 7» (D-27). | Terminado (20/11/2026) |
+| §7.4 y RN-B07 | Anotar que RN-T07 de SPEC-002 sustituye a RN-B07 a partir del Sprint 2. | Terminado (§7.4: 20/11/2026; RN-B07: 25/11/2026) |
 
 ### B.3. Historias de usuario
 
