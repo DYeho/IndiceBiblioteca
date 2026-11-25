@@ -56,6 +56,7 @@ export function createPublicBooksView({ resultsContainer, detailRegion }) {
     const list = createElement('dl', { className: 'detail-list' });
     list.append(
       createDetailRow('Autor', createElement('dd', { className: 'detail-value', text: book.author })),
+      createDetailRow('Categoría', createElement('dd', { className: 'detail-value', text: book.category })),
     );
 
     const shelfValue = book.shelfLabel
@@ -88,6 +89,7 @@ export function createPublicBooksView({ resultsContainer, detailRegion }) {
 
       card.append(createElement('span', { className: 'book-card-title', text: book.title }));
       card.append(createElement('span', { className: 'book-card-author', text: book.author }));
+      card.append(createElement('span', { className: 'book-card-category', text: `Categoría: ${book.category}` }));
 
       if (book.shelfLabel) {
         card.append(createElement('span', { className: 'book-card-shelf', text: `Estante ${book.shelfLabel}` }));

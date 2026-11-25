@@ -1,5 +1,6 @@
 import { request, ApiError } from '../shared/api.js';
 import { clearFieldError, clearMessage, createElement, setBusy, setFieldError, showMessage } from '../shared/utils.js';
+import { initializeCategoryPicker } from './categories.js';
 
 export function validateBookForm(values) {
   const title = values.title.trim();
@@ -7,6 +8,8 @@ export function validateBookForm(values) {
   const description = values.description.trim();
   const quantityText = values.quantity.trim();
   const quantity = Number(quantityText);
+  const categoryIdText = typeof values.categoryId === 'string' ? values.categoryId.trim() : '';
+  const categoryId = Number(categoryIdText);
   const fields = {};
 
   for (const [name, value, label, limit] of [
@@ -29,8 +32,11 @@ export function validateBookForm(values) {
   } else if (!/^[0-9]+$/u.test(quantityText) || !Number.isInteger(quantity) || quantity < 1 || quantity > 999) {
     fields.quantity = 'La cantidad inicial debe ser un número entero entre 1 y 999.';
   }
+  if (!/^[1-9]\d*$/u.test(categoryIdText) || !Number.isSafeInteger(categoryId)) {
+    fields.categoryId = 'Seleccione una categoría.';
+  }
 
-  return { body: { title, author, description, quantity }, fields };
+  return { body: { title, author, description, quantity, categoryId }, fields };
 }
 
 export function initializeBookRegistration() {
@@ -38,9 +44,10 @@ export function initializeBookRegistration() {
   if (!form) return;
   const messages = document.getElementById('book-messages');
   const submit = document.getElementById('register-book');
-  const fields = Object.fromEntries(['title', 'author', 'description', 'quantity'].map(name => [name, {
+  initializeCategoryPicker('book');
+  const fields = Object.fromEntries(['title', 'author', 'categoryId', 'description', 'quantity'].map(name => [name, {
     input: form.elements.namedItem(name),
-    error: document.getElementById(`book-${name}-error`),
+    error: document.getElementById(name === 'categoryId' ? 'book-category-error' : `book-${name}-error`),
   }]));
 
   function showErrors(errors) {
@@ -71,7 +78,7 @@ export function initializeBookRegistration() {
     try {
       const book = await request('/api/books', { method: 'POST', body });
       form.reset();
-      showMessage(messages, `Libro registrado correctamente: «${book.title}» de ${book.author}, ${book.quantity} ejemplares.`, 'success');
+      showMessage(messages, `Libro registrado correctamente: «${book.title}» de ${book.author}, categoría ${book.category}, ${book.quantity} ejemplares.`, 'success');
       fields.title.input.focus();
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) return;
@@ -165,6 +172,7 @@ export function initializeBookSearch({ onEdit, onDelete } = {}) {
     const list = createElement('dl', { className: 'detail-list' });
     list.append(
       createDetailRow('Autor', createElement('dd', { className: 'detail-value', text: book.author })),
+      createDetailRow('Categoría', createElement('dd', { className: 'detail-value', text: book.category })),
       createDetailRow('Estante', book.shelfLabel
         ? createElement('dd', { className: 'detail-value detail-shelf', text: book.shelfLabel })
         : createElement('dd', { className: 'detail-value', text: 'Sin estante asignado' })),
@@ -189,6 +197,7 @@ export function initializeBookSearch({ onEdit, onDelete } = {}) {
       const card = createElement('button', { className: 'book-card', attributes: { type: 'button' } });
       card.append(createElement('span', { className: 'book-card-title', text: book.title }));
       card.append(createElement('span', { className: 'book-card-author', text: book.author }));
+      card.append(createElement('span', { className: 'book-card-category', text: `Categoría: ${book.category}` }));
       card.append(createElement('span', {
         className: book.shelfLabel ? 'book-card-shelf' : 'book-card-author',
         text: book.shelfLabel ? `Estante ${book.shelfLabel}` : 'Sin estante asignado',

@@ -8,3 +8,5 @@ node_modules/
 data/*.sqlite
 data/*.sqlite-wal
 data/*.sqlite-shm
+
+package-lock.json

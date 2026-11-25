@@ -1,5 +1,6 @@
 import { request, ApiError } from '../shared/api.js';
 import { clearFieldError, clearMessage, setBusy, setFieldError, showMessage } from '../shared/utils.js';
+import { initializeCategoryPicker } from './categories.js';
 
 const LOAD_ERROR_TEXT = 'No se pudo cargar el libro. Inténtelo de nuevo.';
 const SAVE_ERROR_TEXT = 'No se pudieron guardar los cambios. Inténtelo de nuevo.';
@@ -16,6 +17,8 @@ export function validateEditForm(values) {
   const description = values.description.trim();
   const quantityText = values.quantity.trim();
   const quantity = Number(quantityText);
+  const categoryIdText = typeof values.categoryId === 'string' ? values.categoryId.trim() : '';
+  const categoryId = Number(categoryIdText);
   const fields = {};
 
   for (const [name, value, label, limit] of [
@@ -38,8 +41,11 @@ export function validateEditForm(values) {
   } else if (!/^[0-9]+$/u.test(quantityText) || !Number.isInteger(quantity) || quantity > 999) {
     fields.quantity = QUANTITY_TEXT;
   }
+  if (!/^[1-9]\d*$/u.test(categoryIdText) || !Number.isSafeInteger(categoryId)) {
+    fields.categoryId = 'Seleccione una categoría.';
+  }
 
-  return { body: { title, author, description, quantity }, fields };
+  return { body: { title, author, description, quantity, categoryId }, fields };
 }
 
 function copiesText(quantity) {
@@ -57,9 +63,10 @@ export function initializeBookEdit({ showSection, messages, repeatSearch, focusE
   const shelfLine = document.getElementById('edit-shelf');
   const submit = document.getElementById('save-edit');
   const cancel = document.getElementById('cancel-edit');
-  const fields = Object.fromEntries(['title', 'author', 'description', 'quantity'].map(name => [name, {
+  const categoryPicker = initializeCategoryPicker('edit');
+  const fields = Object.fromEntries(['title', 'author', 'categoryId', 'description', 'quantity'].map(name => [name, {
     input: form.elements.namedItem(name),
-    error: document.getElementById(`edit-${name}-error`),
+    error: document.getElementById(name === 'categoryId' ? 'edit-category-error' : `edit-${name}-error`),
   }]));
 
   let currentId = null;
@@ -94,6 +101,7 @@ export function initializeBookEdit({ showSection, messages, repeatSearch, focusE
   function fillForm(book) {
     fields.title.input.value = book.title;
     fields.author.input.value = book.author;
+    categoryPicker.setSelected(book.categoryId);
     fields.description.input.value = book.description ?? '';
     fields.quantity.input.value = String(book.quantity);
     shelfLine.textContent = book.shelfLabel ? `Estante: ${book.shelfLabel}` : 'Estante no asignado';
@@ -148,7 +156,7 @@ export function initializeBookEdit({ showSection, messages, repeatSearch, focusE
       const book = await request(`/api/books/${currentId}`, { method: 'PUT', body });
       if (token !== loadToken) return;
       backToSearch(
-        `Libro actualizado correctamente: «${book.title}» de ${book.author}, ${copiesText(book.quantity)}.`,
+        `Libro actualizado correctamente: «${book.title}» de ${book.author}, categoría ${book.category}, ${copiesText(book.quantity)}.`,
         'success',
       );
     } catch (error) {

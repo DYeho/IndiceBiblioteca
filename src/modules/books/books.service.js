@@ -3,9 +3,11 @@ import { validationError, conflict, notFound } from '../../utils/errors.js';
 const MAX_TITLE_LENGTH = 200;
 const MAX_AUTHOR_LENGTH = 150;
 const MAX_DESCRIPTION_LENGTH = 2000;
+const MAX_CATEGORY_LENGTH = 60;
 const MIN_BOOK_QUANTITY = 1;
 const MAX_BOOK_QUANTITY = 999;
 const DUPLICATE_MESSAGE = 'Ese libro ya existe. Edite el libro existente.';
+const DUPLICATE_CATEGORY_MESSAGE = 'Ya existe una categoría con ese nombre.';
 
 export const MAX_SEARCH_LENGTH = 200; // D-06
 export const MAX_SHELF_LABEL_LENGTH = 30; // RN-S03
@@ -37,7 +39,7 @@ function characterCount(value) {
   return Array.from(value).length;
 }
 
-function validateBook(input, normalizeText, { editing = false } = {}) {
+function validateBook(input, normalizeText, repository, { editing = false } = {}) {
   const values = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
   const fields = {};
   const title = typeof values.title === 'string' ? values.title.trim() : '';
@@ -84,6 +86,15 @@ function validateBook(input, normalizeText, { editing = false } = {}) {
       : 'La cantidad inicial debe ser un número entero entre 1 y 999.';
   }
 
+  let categoryId = null;
+  if (!Number.isSafeInteger(values.categoryId) || values.categoryId < 1) {
+    fields.categoryId = 'La categoría es obligatoria.';
+  } else if (repository.findCategoryById(values.categoryId) === null) {
+    fields.categoryId = 'La categoría seleccionada no existe.';
+  } else {
+    categoryId = values.categoryId;
+  }
+
   if (editing && Object.hasOwn(values, 'shelfLabel')) {
     fields.shelfLabel = 'El estante no se modifica desde la edición. Use “Asignar estantes”.';
   }
@@ -92,7 +103,7 @@ function validateBook(input, normalizeText, { editing = false } = {}) {
     throw validationError('Los datos del libro no son válidos.', fields);
   }
 
-  return { title, author, description, quantity: values.quantity, titleNormalized, authorNormalized };
+  return { title, author, description, quantity: values.quantity, categoryId, titleNormalized, authorNormalized };
 }
 
 function saveBook(write) {
@@ -104,11 +115,24 @@ function saveBook(write) {
   }
 }
 
+function saveCategory(write) {
+  try {
+    return write();
+  } catch (error) {
+    if (error?.code === 'SQLITE_CONSTRAINT_UNIQUE') throw conflict(DUPLICATE_CATEGORY_MESSAGE);
+    throw error;
+  }
+}
+
 export function createBooksService({ repository, normalizeText }) {
   if (
     !repository ||
     typeof repository.findByNormalizedKey !== 'function' ||
     typeof repository.insert !== 'function' ||
+    typeof repository.findCategoryById !== 'function' ||
+    typeof repository.findCategoryByNormalizedName !== 'function' ||
+    typeof repository.listCategories !== 'function' ||
+    typeof repository.insertCategory !== 'function' ||
     typeof normalizeText !== 'function'
   ) {
     throw new TypeError('A books repository and text normalizer are required.');
@@ -129,7 +153,7 @@ export function createBooksService({ repository, normalizeText }) {
 
   return {
     registerBook(input) {
-      const book = validateBook(input, normalizeText);
+      const book = validateBook(input, normalizeText, repository);
       checkDuplicate(book);
       return saveBook(() => repository.insert(book));
     },
@@ -138,12 +162,43 @@ export function createBooksService({ repository, normalizeText }) {
 
     editBook(rawId, input) {
       const { id } = requireBook(rawId);
-      const book = validateBook(input, normalizeText, { editing: true });
+      const book = validateBook(input, normalizeText, repository, { editing: true });
       checkDuplicate(book, id);
 
       const updatedBook = saveBook(() => repository.update(id, book));
       if (updatedBook === null) throw notFound(BOOK_NOT_FOUND_MESSAGE);
       return updatedBook;
+    },
+
+    listCategories() {
+      return repository.listCategories();
+    },
+
+    registerCategory(input) {
+      const values = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
+      if (typeof values.name !== 'string') {
+        throw validationError('La categoría no es válida.', { name: 'El nombre de la categoría es obligatorio.' });
+      }
+
+      const name = values.name.trim();
+      if (!name) {
+        throw validationError('La categoría no es válida.', { name: 'El nombre de la categoría es obligatorio.' });
+      }
+      if (characterCount(name) > MAX_CATEGORY_LENGTH) {
+        throw validationError('La categoría no es válida.', {
+          name: `La categoría no puede superar ${MAX_CATEGORY_LENGTH} caracteres.`,
+        });
+      }
+
+      const normalizedName = normalizeText(name);
+      if (!normalizedName) {
+        throw validationError('La categoría no es válida.', { name: 'El nombre de la categoría es obligatorio.' });
+      }
+      if (repository.findCategoryByNormalizedName(normalizedName)) {
+        throw conflict(DUPLICATE_CATEGORY_MESSAGE);
+      }
+
+      return saveCategory(() => repository.insertCategory({ name, normalizedName }));
     },
 
     /**

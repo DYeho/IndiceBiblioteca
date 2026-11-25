@@ -67,6 +67,20 @@
           <p id="book-author-error" class="field-error" hidden></p>
         </div>
         <div class="field">
+          <label for="book-category">Categoría</label>
+          <select id="book-category" name="categoryId" required aria-describedby="book-category-error">
+            <option value="">Cargando categorías…</option>
+          </select>
+          <p id="book-category-error" class="field-error" hidden></p>
+          <button id="book-category-add-toggle" type="button" class="btn btn-secondary">Agregar categoría nueva</button>
+          <div id="book-category-add" class="category-add" hidden>
+            <label for="book-category-new-name">Nombre de la nueva categoría</label>
+            <input id="book-category-new-name" type="text" maxlength="60" autocomplete="off" aria-describedby="book-category-add-message">
+            <button id="book-category-create" type="button" class="btn btn-secondary">Guardar categoría</button>
+            <p id="book-category-add-message" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="field">
           <label for="book-description">Descripción (opcional)</label>
           <textarea id="book-description" name="description" maxlength="2000" rows="5" aria-describedby="book-description-error"></textarea>
           <p id="book-description-error" class="field-error" hidden></p>
@@ -107,6 +121,20 @@
           <label for="edit-author">Autor</label>
           <input id="edit-author" name="author" type="text" required maxlength="150" aria-describedby="edit-author-error">
           <p id="edit-author-error" class="field-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="edit-category">Categoría</label>
+          <select id="edit-category" name="categoryId" required aria-describedby="edit-category-error">
+            <option value="">Cargando categorías…</option>
+          </select>
+          <p id="edit-category-error" class="field-error" hidden></p>
+          <button id="edit-category-add-toggle" type="button" class="btn btn-secondary">Agregar categoría nueva</button>
+          <div id="edit-category-add" class="category-add" hidden>
+            <label for="edit-category-new-name">Nombre de la nueva categoría</label>
+            <input id="edit-category-new-name" type="text" maxlength="60" autocomplete="off" aria-describedby="edit-category-add-message">
+            <button id="edit-category-create" type="button" class="btn btn-secondary">Guardar categoría</button>
+            <p id="edit-category-add-message" role="status" aria-live="polite"></p>
+          </div>
         </div>
         <div class="field">
           <label for="edit-description">Descripción (opcional)</label>

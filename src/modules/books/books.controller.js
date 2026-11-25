@@ -13,6 +13,23 @@ export function createBooksController({ service }) {
       }
     },
 
+    listCategories(req, res, next) {
+      try {
+        res.json({ data: service.listCategories() });
+      } catch (error) {
+        next(error);
+      }
+    },
+
+    createCategory(req, res, next) {
+      try {
+        const category = service.registerCategory(req.body);
+        res.status(201).json({ data: category });
+      } catch (error) {
+        next(error);
+      }
+    },
+
     getById(req, res, next) {
       try {
         const book = service.getBookById(req.params.id);

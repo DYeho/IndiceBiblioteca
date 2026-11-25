@@ -50,6 +50,25 @@
   resize: vertical;
 }
 
+.category-add {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.category-add[hidden] {
+  display: none;
+}
+
+.category-add p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
 /* 4. Encabezado de sección con menú de opciones (Asignar estantes) -------- */
 .section-header {
   display: flex;

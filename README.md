@@ -19,11 +19,11 @@ necesidad de cuenta.
 **Incluido en el MVP**
 
 1. Iniciar sesión (varias cuentas de Administración).
-2. Registrar libros, con cantidad obligatoria (mínimo 1).
+2. Registrar libros con categoría obligatoria (cantidad mínima 1); la Administración puede agregar categorías nuevas desde el formulario.
 3. Organizar los libros por etiqueta de estante.
 4. Editar libros, incluida la cantidad (puede llegar a 0).
 5. Eliminar libros.
-6. Buscar por nombre o autor. Cada resultado muestra título, autor, estante y
+6. Buscar por nombre o autor. Cada resultado muestra título, autor, categoría, estante y
    la marca "agotado" si corresponde.
 7. Ver el detalle del libro: estante, cantidad y estado "agotado".
 
@@ -34,6 +34,7 @@ hasta que la Administración lo elimine.
 
 - Digitalizar descripción, sinopsis e índice escaneando las páginas.
 - Filtrar la lista de libros, manualmente o con inteligencia artificial.
+- Editar y eliminar categorías.
 
 **Fuera del alcance**
 
@@ -65,9 +66,15 @@ Requisitos: Node.js 22 o superior.
    node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
    ```
 
-3. Crear al menos una cuenta de Administración (ver la sección siguiente).
+3. Inicializar la base de datos (también aplica la migración de categorías si ya hay libros):
 
-4. Iniciar el servidor:
+   ```sh
+   npm run db:init
+   ```
+
+4. Crear al menos una cuenta de Administración (ver la sección siguiente).
+
+5. Iniciar el servidor:
 
    ```sh
    npm start        # o "npm run dev" para reiniciar al guardar cambios
@@ -100,3 +107,4 @@ ruta indicada en `DATABASE_PATH` (por defecto `data/library.sqlite`).
 
 - `docs/specs/SPEC-000-foundation.md`: base técnica, convenciones y criterios de calidad.
 - `docs/stories/`: historias de usuario del MVP.
+- `docs/user-history/HU-010-CategoriaLibro.md`: categorías iniciales y alta de categorías nuevas.

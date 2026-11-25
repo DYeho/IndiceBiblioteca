@@ -13,6 +13,24 @@ export function registerBooksRoutes(router, { requireAdmin, controller }) {
   return router;
 }
 
+export function registerBookCategoryRoutes(router, { requireAdmin, controller }) {
+  if (
+    !router ||
+    typeof router.get !== 'function' ||
+    typeof router.post !== 'function' ||
+    typeof requireAdmin !== 'function' ||
+    !controller ||
+    typeof controller.listCategories !== 'function' ||
+    typeof controller.createCategory !== 'function'
+  ) {
+    throw new TypeError('A router, admin guard and category controller are required.');
+  }
+
+  router.get('/', controller.listCategories);
+  router.post('/', requireAdmin, controller.createCategory);
+  return router;
+}
+
 // HU-006: búsqueda pública (RN-A11, RN-B01). Separada para no cambiar el registro de HU-002.
 export function registerBookSearchRoutes(router, { controller }) {
   if (!router || typeof router.get !== 'function' || !controller || typeof controller.search !== 'function') {
