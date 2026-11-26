@@ -63,7 +63,7 @@ Una tarea pasa a **Terminada** solo cuando quien la ejecutó reporta las verific
 | **Bloque E. Cierre** | | | | | |
 | T-41 | Verificación manual completa del plan de SPEC-002 §10 (V-29 a V-63), con resultados registrados. | Todas | T-31, T-35, T-39 | `develop` | Terminada |
 | T-42 | Aplicar las actualizaciones documentales de SPEC-002 Anexo B: SPEC-000 §10 #2 y SPEC-001 (D-11, §7.2, §7.4 y §7.5). Registrar la fecha de cada una. | Todas | Aprobación de SPEC-002 | `docs/spec-002` | Terminada |
-| T-43 | Revisión de la Definition of Done, `npm test` final con toda la suite, commits convencionales en inglés y merge a `develop`. Completar este documento. | Todas | T-27, T-32, T-36, T-40, T-41, T-42 | `develop` | Pendiente |
+| T-43 | Revisión de la Definition of Done, `npm test` final con toda la suite, commits convencionales en inglés y merge a `develop`. Completar este documento. | Todas | T-27, T-32, T-36, T-40, T-41, T-42 | `develop` | Terminada |
 
 ## 5. Orden sugerido
 
