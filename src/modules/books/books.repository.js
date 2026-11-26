@@ -71,6 +71,25 @@ export function createBooksRepository(database, { now = () => new Date().toISOSt
        OR instr(books.author_normalized, @text) > 0
     ORDER BY books.title_normalized, books.author_normalized, books.id
   `);
+  const adminSearchWhere = `
+    WHERE (@categoryId IS NULL OR books.category_id = @categoryId)
+      AND (@text IS NULL OR instr(books.title_normalized, @text) > 0
+           OR instr(books.author_normalized, @text) > 0)
+  `;
+  const adminSearchStatement = database.prepare(`
+    SELECT books.id, books.title, books.author, books.quantity,
+           books.shelf_label AS shelfLabel, categories.name AS category
+    FROM books
+    JOIN categories ON categories.id = books.category_id
+    ${adminSearchWhere}
+    ORDER BY books.title_normalized, books.author_normalized, books.id
+    LIMIT @limit OFFSET @offset
+  `);
+  const adminSearchCountStatement = database.prepare(`
+    SELECT COUNT(*) AS total
+    FROM books
+    ${adminSearchWhere}
+  `);
 
   // HU-003 (T-29): listas de asignación de estante. Mismo orden que la búsqueda (RN-S07).
   const listUnassignedStatement = database.prepare(`
@@ -155,6 +174,12 @@ export function createBooksRepository(database, { now = () => new Date().toISOSt
     /** @param {string} normalizedText texto ya normalizado y no vacío */
     search(normalizedText) {
       return searchStatement.all({ text: normalizedText });
+    },
+    searchAdmin({ text, categoryId, limit, offset }) {
+      return adminSearchStatement.all({ text, categoryId, limit, offset });
+    },
+    countAdminSearch({ text, categoryId }) {
+      return adminSearchCountStatement.get({ text, categoryId }).total;
     },
     listCategories() {
       return listCategoriesStatement.all();

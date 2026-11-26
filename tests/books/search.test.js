@@ -8,9 +8,10 @@ describe('Búsqueda pública de libros GET /api/books (HU-006)', () => {
 
   before(async () => {
     app = await createTestApp();
+    const categoryId = app.db.prepare('SELECT id FROM categories WHERE normalized_name = ?').get('literatura').id;
     const insert = app.db.prepare(`
-      INSERT INTO books (title, author, quantity, shelf_label, title_normalized, author_normalized)
-      VALUES (@title, @author, @quantity, @shelfLabel, @titleNormalized, @authorNormalized)
+      INSERT INTO books (title, author, quantity, category_id, shelf_label, title_normalized, author_normalized)
+      VALUES (@title, @author, @quantity, @categoryId, @shelfLabel, @titleNormalized, @authorNormalized)
     `);
 
     const fixtures = [
@@ -24,6 +25,7 @@ describe('Búsqueda pública de libros GET /api/books (HU-006)', () => {
     for (const book of fixtures) {
       insert.run({
         ...book,
+        categoryId,
         titleNormalized: normalizeText(book.title),
         authorNormalized: normalizeText(book.author),
       });
@@ -60,8 +62,9 @@ describe('Búsqueda pública de libros GET /api/books (HU-006)', () => {
     assert.equal(json.data.length, 2);
 
     const first = json.data[0];
-    assert.deepEqual(Object.keys(first).sort(), ['author', 'id', 'quantity', 'shelfLabel', 'title']);
+    assert.deepEqual(Object.keys(first).sort(), ['author', 'category', 'id', 'quantity', 'shelfLabel', 'title']);
     assert.equal(first.title, 'Cien años de soledad');
+    assert.equal(first.category, 'Literatura');
     assert.equal(first.quantity, 3);
     assert.equal(first.shelfLabel, 'A-3');
     assert.equal(json.data[1].quantity, 0);

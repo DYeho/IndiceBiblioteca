@@ -11,21 +11,22 @@ const BOOK_NOT_FOUND = { error: { code: 'NOT_FOUND', message: 'El libro no exist
 const DUPLICATE = { error: { code: 'CONFLICT', message: 'Ese libro ya existe. Edite el libro existente.' } };
 const QUANTITY_MESSAGE = 'La cantidad debe ser un número entero entre 0 y 999.';
 const SHELF_MESSAGE = 'El estante no se modifica desde la edición. Use “Asignar estantes”.';
-const BOOK_FIELDS = ['author', 'createdAt', 'description', 'id', 'quantity', 'shelfLabel', 'title', 'updatedAt'];
+const BOOK_FIELDS = ['author', 'category', 'categoryId', 'createdAt', 'description', 'id', 'quantity', 'shelfLabel', 'title', 'updatedAt'];
 const INVALID_IDS = ['999999', 'abc', '0', '-1', '1.5', '1e3', '01'];
 
 async function setup(t, options) {
   const app = await createTestApp(options);
   t.after(() => app.close());
   const { cookie } = await app.login();
+  const categoryId = app.db.prepare('SELECT id FROM categories WHERE normalized_name = ?').get('literatura').id;
   const register = async (title, author = 'Autora de prueba', quantity = 3, description) => {
-    const body = { title, author, quantity, ...(description === undefined ? {} : { description }) };
+    const body = { title, author, quantity, categoryId, ...(description === undefined ? {} : { description }) };
     const response = await app.request('/api/books', { body, cookie });
     assert.equal(response.status, 201);
     return (await response.json()).data;
   };
   const read = (id, extra = {}) => app.request(`/api/books/${id}`, { method: 'GET', cookie, ...extra });
-  const edit = (id, body, extra = {}) => app.request(`/api/books/${id}`, { method: 'PUT', body, cookie, ...extra });
+  const edit = (id, body, extra = {}) => app.request(`/api/books/${id}`, { method: 'PUT', body: { categoryId, ...body }, cookie, ...extra });
   const assignShelf = (id, shelfLabel) => app.request(`/api/books/${id}/shelf`, { method: 'PUT', body: { shelfLabel }, cookie });
   const search = async text => {
     const response = await app.request(`/api/books?q=${encodeURIComponent(text)}`, { method: 'GET' });
@@ -34,7 +35,7 @@ async function setup(t, options) {
   };
   const rows = () => app.db.prepare('SELECT * FROM books ORDER BY id').all();
   const row = id => app.db.prepare('SELECT * FROM books WHERE id = ?').get(id);
-  const valid = (overrides = {}) => ({ title: 'Título nuevo', author: 'Autor nuevo', description: 'Descripción nueva', quantity: 5, ...overrides });
+  const valid = (overrides = {}) => ({ title: 'Título nuevo', author: 'Autor nuevo', description: 'Descripción nueva', quantity: 5, categoryId, ...overrides });
   return { app, cookie, register, read, edit, assignShelf, search, rows, row, valid };
 }
 
@@ -257,7 +258,7 @@ test('PE-12 a real UNIQUE violation becomes a 409 when the duplicate check does 
   const repository = createBooksRepository(app.db);
   const service = createBooksService({ repository: { ...repository, findByNormalizedKey: () => null }, normalizeText });
   assert.throws(
-    () => service.editBook(other.id, { title: 'Rayuela', author: 'Julio Cortázar', quantity: 1 }),
+    () => service.editBook(other.id, { title: 'Rayuela', author: 'Julio Cortázar', quantity: 1, categoryId: other.categoryId }),
     error => error.status === 409 && error.code === 'CONFLICT',
   );
   assert.equal(app.db.prepare('SELECT title FROM books WHERE id = ?').get(other.id).title, 'El principito');
@@ -414,7 +415,7 @@ test('a body that is not a JSON object is rejected with the three required field
     assert.equal(response.status, 400, rawBody);
     const { error } = await response.json();
     assert.equal(error.code, 'VALIDATION_ERROR');
-    assert.deepEqual(Object.keys(error.fields).sort(), ['author', 'quantity', 'title']);
+    assert.deepEqual(Object.keys(error.fields).sort(), ['author', 'categoryId', 'quantity', 'title']);
   }
   assert.deepEqual(rows(), before);
 });

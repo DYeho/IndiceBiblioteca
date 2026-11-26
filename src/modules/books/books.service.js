@@ -4,6 +4,7 @@ const MAX_TITLE_LENGTH = 200;
 const MAX_AUTHOR_LENGTH = 150;
 const MAX_DESCRIPTION_LENGTH = 2000;
 const MAX_CATEGORY_LENGTH = 60;
+const ADMIN_SEARCH_PAGE_SIZE = 10;
 const MIN_BOOK_QUANTITY = 1;
 const MAX_BOOK_QUANTITY = 999;
 const DUPLICATE_MESSAGE = 'Ese libro ya existe. Edite el libro existente.';
@@ -33,6 +34,13 @@ const SEARCH_MESSAGES = {
   required: 'Escriba un título o autor para buscar.',
   tooLong: `El texto de búsqueda no puede superar ${MAX_SEARCH_LENGTH} caracteres.`,
   repeated: 'El texto de búsqueda debe enviarse una sola vez.',
+};
+const ADMIN_SEARCH_MESSAGES = {
+  repeatedQuery: 'El texto de búsqueda debe enviarse una sola vez.',
+  invalidQuery: 'Escriba un texto de búsqueda válido.',
+  tooLongQuery: `El texto de búsqueda no puede superar ${MAX_SEARCH_LENGTH} caracteres.`,
+  invalidCategory: 'Seleccione una categoría válida.',
+  invalidPage: 'La página debe ser un entero positivo.',
 };
 
 function characterCount(value) {
@@ -133,6 +141,8 @@ export function createBooksService({ repository, normalizeText }) {
     typeof repository.findCategoryByNormalizedName !== 'function' ||
     typeof repository.listCategories !== 'function' ||
     typeof repository.insertCategory !== 'function' ||
+    typeof repository.searchAdmin !== 'function' ||
+    typeof repository.countAdminSearch !== 'function' ||
     typeof normalizeText !== 'function'
   ) {
     throw new TypeError('A books repository and text normalizer are required.');
@@ -284,6 +294,66 @@ export function createBooksService({ repository, normalizeText }) {
 
       const books = repository.search(normalized);
       return { books, total: books.length };
+    },
+
+    searchAdminBooks(rawQuery) {
+      const values = rawQuery && typeof rawQuery === 'object' && !Array.isArray(rawQuery) ? rawQuery : {};
+      const fields = {};
+      let text = null;
+      let categoryId = null;
+      let requestedPage = 1;
+
+      if (Array.isArray(values.q)) {
+        fields.q = ADMIN_SEARCH_MESSAGES.repeatedQuery;
+      } else if (values.q !== undefined && typeof values.q !== 'string') {
+        fields.q = ADMIN_SEARCH_MESSAGES.invalidQuery;
+      } else if (typeof values.q === 'string' && values.q.trim() !== '') {
+        const trimmed = values.q.trim();
+        if (characterCount(trimmed) > MAX_SEARCH_LENGTH) {
+          fields.q = ADMIN_SEARCH_MESSAGES.tooLongQuery;
+        } else {
+          text = normalizeText(trimmed);
+          if (!text) fields.q = ADMIN_SEARCH_MESSAGES.invalidQuery;
+        }
+      }
+
+      if (Array.isArray(values.categoryId)) {
+        fields.categoryId = ADMIN_SEARCH_MESSAGES.invalidCategory;
+      } else if (values.categoryId !== undefined && values.categoryId !== '') {
+        if (typeof values.categoryId !== 'string' || !/^[1-9]\d*$/.test(values.categoryId)) {
+          fields.categoryId = ADMIN_SEARCH_MESSAGES.invalidCategory;
+        } else {
+          categoryId = Number(values.categoryId);
+          if (!Number.isSafeInteger(categoryId) || repository.findCategoryById(categoryId) === null) {
+            fields.categoryId = ADMIN_SEARCH_MESSAGES.invalidCategory;
+          }
+        }
+      }
+
+      if (Array.isArray(values.page) || (values.page !== undefined && (
+        typeof values.page !== 'string' || !/^[1-9]\d*$/.test(values.page)
+      ))) {
+        fields.page = ADMIN_SEARCH_MESSAGES.invalidPage;
+      } else if (values.page !== undefined) {
+        requestedPage = Number(values.page);
+        if (!Number.isSafeInteger(requestedPage)) fields.page = ADMIN_SEARCH_MESSAGES.invalidPage;
+      }
+
+      if (Object.keys(fields).length > 0) {
+        throw validationError('Los filtros de búsqueda no son válidos.', fields);
+      }
+
+      const total = repository.countAdminSearch({ text, categoryId });
+      const totalPages = Math.ceil(total / ADMIN_SEARCH_PAGE_SIZE);
+      const page = Math.min(requestedPage, Math.max(totalPages, 1));
+      const books = repository.searchAdmin({
+        text,
+        categoryId,
+        limit: ADMIN_SEARCH_PAGE_SIZE,
+        offset: (page - 1) * ADMIN_SEARCH_PAGE_SIZE,
+      });
+
+      return { books, total, page, pageSize: ADMIN_SEARCH_PAGE_SIZE, totalPages };
     },
   };
 }

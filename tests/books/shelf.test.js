@@ -7,14 +7,15 @@ const NO_SESSION = { error: { code: 'UNAUTHENTICATED', message: 'Debe iniciar se
 const BOOK_NOT_FOUND = { error: { code: 'NOT_FOUND', message: 'El libro no existe.' } };
 const STATUS_MESSAGE = 'Indique si desea los libros sin estante o con estante.';
 const LIST_FIELDS = ['author', 'id', 'quantity', 'shelfLabel', 'title'];
-const BOOK_FIELDS = ['author', 'createdAt', 'description', 'id', 'quantity', 'shelfLabel', 'title', 'updatedAt'];
+const BOOK_FIELDS = ['author', 'category', 'categoryId', 'createdAt', 'description', 'id', 'quantity', 'shelfLabel', 'title', 'updatedAt'];
 
 async function setup(t, options) {
   const app = await createTestApp(options);
   t.after(() => app.close());
   const { cookie } = await app.login();
+  const categoryId = app.db.prepare('SELECT id FROM categories WHERE normalized_name = ?').get('literatura').id;
   const register = async (title, author = 'Autora de prueba', quantity = 3) => {
-    const response = await app.request('/api/books', { body: { title, author, quantity }, cookie });
+    const response = await app.request('/api/books', { body: { title, author, quantity, categoryId }, cookie });
     assert.equal(response.status, 201);
     return (await response.json()).data;
   };

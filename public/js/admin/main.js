@@ -41,7 +41,10 @@ logoutButton?.addEventListener('click', async () => {
 const SECTION_NAMES = ['buscar', 'registrar', 'asignar', 'editar'];
 const shelves = initializeShelfAssignments();
 // Sections that reload their content every time their button is pressed.
-const onButtonPress = { asignar: () => shelves.show() };
+const onButtonPress = {
+  buscar: () => search.showAll(),
+  asignar: () => shelves.show(),
+};
 
 function showSection(name) {
   const markedButton = name === 'editar' ? 'buscar' : name;
@@ -79,4 +82,5 @@ const search = initializeBookSearch({
   onEdit: (book) => edit.open(book.id),
   onDelete: (book, button) => deletion.open(book, button),
 });
+void search.showAll();
 initializeBookRegistration();

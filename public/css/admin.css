@@ -69,6 +69,25 @@
   font-size: var(--font-size-sm);
 }
 
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.pagination-controls[hidden] {
+  display: none;
+}
+
+.pagination-controls p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
 /* 4. Encabezado de sección con menú de opciones (Asignar estantes) -------- */
 .section-header {
   display: flex;

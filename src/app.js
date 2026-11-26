@@ -17,6 +17,7 @@ import {
   registerBooksRoutes,
   registerBookCategoryRoutes,
   registerBookSearchRoutes,
+  registerAdminBookSearchRoutes,
   registerBookShelfRoutes,
   registerBookEditRoutes,
   registerBookDeleteRoutes,
@@ -90,6 +91,7 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
   };
   api.put('/books/:id/shelf', requireAdminSession);
   api.post('/categories', requireAdminSession);
+  api.get('/admin/books', requireAdminSession);
   if (!routers.books) {
     api.get('/books/:id', requireAdminSession);
     api.put('/books/:id', requireAdminSession, express.json({ limit: '16kb', strict: false }));
@@ -115,6 +117,10 @@ export function createApp({ env, db, routers = {}, sessionOptions, bcryptCost, a
   api.use(
     '/categories',
     registerBookCategoryRoutes(express.Router(), { requireAdmin: requireAdminSession, controller: booksController }),
+  );
+  api.use(
+    '/admin/books',
+    registerAdminBookSearchRoutes(express.Router(), { requireAdmin: requireAdminSession, controller: booksController }),
   );
   let booksRouter = routers.books;
   if (!booksRouter) {

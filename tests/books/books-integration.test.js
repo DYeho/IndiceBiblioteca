@@ -12,7 +12,7 @@ import { normalizeText } from '../../src/utils/normalize-text.js';
 import { createApiLimiter } from '../../src/middleware/rate-limit.middleware.js';
 import { openDatabase } from '../../src/database/conection.js';
 
-const validBook = { title: 'Cien años de soledad', author: 'Gabriel García Márquez', description: 'Novela', quantity: 5 };
+const validBook = { title: 'Cien años de soledad', author: 'Gabriel García Márquez', description: 'Novela', quantity: 5, categoryId: 1 };
 
 async function setup(t, options) {
   const app = await createTestApp(options);
@@ -28,11 +28,12 @@ test('PB-01 registers through the application and returns the stored public fiel
   assert.equal(response.status, 201);
   assert.equal(response.headers.get('cache-control'), 'no-store');
   const { data } = await response.json();
-  assert.deepEqual(Object.keys(data).sort(), ['id', 'title', 'author', 'description', 'quantity', 'shelfLabel', 'createdAt', 'updatedAt'].sort());
+  assert.deepEqual(Object.keys(data).sort(), ['id', 'title', 'author', 'description', 'quantity', 'categoryId', 'category', 'shelfLabel', 'createdAt', 'updatedAt'].sort());
   assert.equal(data.title, 'Cien  años de soledad');
   assert.equal(data.author, validBook.author);
   assert.equal(data.description, 'Novela');
   assert.equal(data.quantity, 5);
+  assert.equal(data.category, 'Literatura');
   assert.equal(data.shelfLabel, null);
   assert.equal(data.createdAt, data.updatedAt);
   assert.ok(Number.isFinite(Date.parse(data.createdAt)));
@@ -53,7 +54,7 @@ test('PB-03 returns 400 and all missing or invalid required text fields', async 
   assert.equal(response.status, 400);
   const { error } = await response.json();
   assert.equal(error.code, 'VALIDATION_ERROR');
-  assert.deepEqual(Object.keys(error.fields).sort(), ['author', 'quantity', 'title']);
+  assert.deepEqual(Object.keys(error.fields).sort(), ['author', 'categoryId', 'quantity', 'title']);
   for (const field of ['title', 'author']) {
     for (const value of [undefined, '', '  ', '\u0301', 123]) {
       response = await register({ ...validBook, [field]: value });
@@ -84,7 +85,7 @@ test('PB-05 accepts quantity boundaries 1 and 999', async t => {
 
 test('PB-06 enforces all text length boundaries through HTTP', async t => {
   const { register } = await setup(t);
-  const response = await register({ title: '📚'.repeat(200), author: 'B'.repeat(150), description: 'C'.repeat(2000), quantity: 1 });
+  const response = await register({ title: '📚'.repeat(200), author: 'B'.repeat(150), description: 'C'.repeat(2000), quantity: 1, categoryId: validBook.categoryId });
   assert.equal(response.status, 201);
   for (const [field, length] of [['title', 201], ['author', 151], ['description', 2001]]) {
     const invalid = await register({ ...validBook, [field]: 'A'.repeat(length) });
@@ -145,7 +146,7 @@ test('PB-11 allows a different title or a different author', async t => {
 test('PB-12 SQLite enforces UNIQUE and the specified CHECK constraints', async t => {
   const { app, register } = await setup(t);
   assert.equal((await register()).status, 201);
-  assert.throws(() => app.db.exec('INSERT INTO books (title,author,quantity,title_normalized,author_normalized) SELECT title,author,quantity,title_normalized,author_normalized FROM books'), error => error.code === 'SQLITE_CONSTRAINT_UNIQUE');
+  assert.throws(() => app.db.exec('INSERT INTO books (title,author,quantity,category_id,title_normalized,author_normalized) SELECT title,author,quantity,category_id,title_normalized,author_normalized FROM books'), error => error.code === 'SQLITE_CONSTRAINT_UNIQUE');
   for (const quantity of [-1, 1000, 1.5]) {
     assert.throws(() => app.db.prepare('UPDATE books SET quantity = ?').run(quantity), error => error.code === 'SQLITE_CONSTRAINT_CHECK');
   }

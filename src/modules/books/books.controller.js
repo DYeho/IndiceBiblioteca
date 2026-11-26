@@ -87,5 +87,14 @@ export function createBooksController({ service }) {
         next(error);
       }
     },
+
+    searchAdmin(req, res, next) {
+      try {
+        const { books, total, page, pageSize, totalPages } = service.searchAdminBooks(req.query);
+        res.json({ data: books, meta: { total, page, pageSize, totalPages } });
+      } catch (error) {
+        next(error);
+      }
+    },
   };
 }

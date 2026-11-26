@@ -10,8 +10,9 @@ async function setup(t, options) {
   const app = await createTestApp(options);
   t.after(() => app.close());
   const { cookie } = await app.login();
+  const categoryId = app.db.prepare('SELECT id FROM categories WHERE normalized_name = ?').get('literatura').id;
   const register = async (title, author = 'Autora de prueba', quantity = 3) => {
-    const response = await app.request('/api/books', { body: { title, author, quantity }, cookie });
+    const response = await app.request('/api/books', { body: { title, author, quantity, categoryId }, cookie });
     assert.equal(response.status, 201);
     return (await response.json()).data;
   };
@@ -127,7 +128,7 @@ test('PF-08 the same title and author can be registered again after deleting', a
   const { app, cookie, register, remove } = await setup(t);
   const book = await register('Rayuela', 'Julio Cortázar', 2);
   assert.equal((await remove(book.id)).status, 204);
-  const response = await app.request('/api/books', { body: { title: 'rayuela', author: 'JULIO CORTAZAR', quantity: 4 }, cookie });
+  const response = await app.request('/api/books', { body: { title: 'rayuela', author: 'JULIO CORTAZAR', quantity: 4, categoryId: 1 }, cookie });
   assert.equal(response.status, 201);
   const { data } = await response.json();
   assert.notEqual(data.id, book.id);

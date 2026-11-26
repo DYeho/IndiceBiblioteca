@@ -42,6 +42,17 @@
         </div>
         <p class="form-error" id="search-error" hidden></p>
       </form>
+      <div class="field">
+        <label for="search-category">Filtrar por categoría</label>
+        <select id="search-category">
+          <option value="">Todas las categorías</option>
+        </select>
+      </div>
+      <nav id="search-pagination" class="pagination-controls" aria-label="Paginación de resultados" hidden>
+        <button id="search-previous-page" type="button" class="btn btn-secondary">Anterior</button>
+        <p id="search-page-info" role="status" aria-live="polite"></p>
+        <button id="search-next-page" type="button" class="btn btn-secondary">Siguiente</button>
+      </nav>
 
       <div class="search-layout">
         <section class="search-results stack" aria-label="Resultados de búsqueda">

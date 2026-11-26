@@ -18,7 +18,7 @@ function isAdminArea() {
   return window.location.pathname.toLowerCase().startsWith('/admin');
 }
 
-export async function request(path, { method = 'GET', body } = {}) {
+export async function request(path, { method = 'GET', body, includeMeta = false } = {}) {
   let response;
   try {
     response = await fetch(path, {
@@ -35,7 +35,7 @@ export async function request(path, { method = 'GET', body } = {}) {
     });
   }
 
-  if (response.status === 204) return null;
+  if (response.status === 204) return includeMeta ? { data: null, meta: null } : null;
 
   let payload = null;
   try {
@@ -55,5 +55,8 @@ export async function request(path, { method = 'GET', body } = {}) {
     });
   }
 
+  if (includeMeta) {
+    return { data: payload?.data ?? null, meta: payload?.meta ?? null };
+  }
   return payload?.data ?? null;
 }

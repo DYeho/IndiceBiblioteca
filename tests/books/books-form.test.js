@@ -1,21 +1,23 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { validateBookForm } from '../../public/js/admin/books.js';
+import { validateEditForm } from '../../public/js/admin/book-edit.js';
 import { createTestApp } from '../test-app.js';
 
-const values = { title: ' Cien  años de soledad ', author: ' Gabriel García Márquez ', description: ' Novela ', quantity: '5' };
+const values = { title: ' Cien  años de soledad ', author: ' Gabriel García Márquez ', categoryId: '1', description: ' Novela ', quantity: '5' };
 
 test('registration form produces trimmed text and an integer JSON quantity', () => {
   const { body, fields } = validateBookForm(values);
   assert.deepEqual(fields, {});
-  assert.deepEqual(body, { title: 'Cien  años de soledad', author: 'Gabriel García Márquez', description: 'Novela', quantity: 5 });
+  assert.deepEqual(body, { title: 'Cien  años de soledad', author: 'Gabriel García Márquez', categoryId: 1, description: 'Novela', quantity: 5 });
   assert.equal(JSON.parse(JSON.stringify(body)).quantity, 5);
 });
 
 test('registration form reports required fields and text that normalizes to empty', () => {
-  assert.deepEqual(validateBookForm({ title: ' ', author: '', description: '', quantity: ' ' }).fields, {
+  assert.deepEqual(validateBookForm({ title: ' ', author: '', categoryId: '', description: '', quantity: ' ' }).fields, {
     title: 'El título es obligatorio.',
     author: 'El autor es obligatorio.',
+    categoryId: 'Seleccione una categoría.',
     quantity: 'La cantidad inicial es obligatoria.',
   });
   for (const name of ['title', 'author']) {
@@ -30,6 +32,14 @@ test('registration form enforces text limits without truncation', () => {
     assert.ok(validateBookForm({ ...values, [name]: 'A'.repeat(length) }).fields[name]);
   }
   assert.equal(validateBookForm({ ...values, title: '\u0301'.repeat(201) }).fields.title, 'El título no puede superar 200 caracteres.');
+});
+
+test('registration and edit forms require a positive category identifier', () => {
+  for (const categoryId of ['', '0', '-1', '1.5', 'abc', '1e2']) {
+    assert.equal(validateBookForm({ ...values, categoryId }).fields.categoryId, 'Seleccione una categoría.');
+    assert.equal(validateEditForm({ ...values, categoryId }).fields.categoryId, 'Seleccione una categoría.');
+  }
+  assert.deepEqual(validateEditForm({ ...values, categoryId: '2', quantity: '0' }).fields, {});
 });
 
 test('registration form rejects invalid numeric text and accepts the integer boundaries', () => {
@@ -76,10 +86,15 @@ test('the authenticated registration page and its modules are served under the e
   assert.match(response.headers.get('content-security-policy'), /script-src 'self'/);
   const html = await response.text();
   assert.match(html, /<form id="book-form" novalidate>/);
+  assert.match(html, /<select id="search-category">/);
+  assert.match(html, /<nav id="search-pagination"[^>]+aria-label="Paginación de resultados"/);
+  assert.match(html, /id="search-previous-page"/);
+  assert.match(html, /id="search-next-page"/);
   assert.match(html, /<textarea[^>]+name="description"[^>]+maxlength="2000"/);
+  assert.match(html, /<select[^>]+name="categoryId"[^>]+required/);
   assert.match(html, /<input[^>]+name="quantity"[^>]+type="text"[^>]+inputmode="numeric"/);
   assert.doesNotMatch(html, /\s(?:style|on[a-z]+)\s*=|<style\b/i);
-  for (const path of ['/js/admin/main.js', '/js/admin/books.js', '/js/shared/api.js', '/js/shared/utils.js']) {
+  for (const path of ['/js/admin/main.js', '/js/admin/books.js', '/js/admin/categories.js', '/js/shared/api.js', '/js/shared/utils.js']) {
     const asset = await app.request(path, { method: 'GET', cookie });
     assert.equal(asset.status, 200);
     assert.match(asset.headers.get('content-type'), /javascript/);

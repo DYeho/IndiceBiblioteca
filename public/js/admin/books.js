@@ -128,9 +128,17 @@ export function initializeBookSearch({ onEdit, onDelete } = {}) {
   const summaryContainer = document.getElementById('search-summary');
   const resultsContainer = document.getElementById('results-container');
   const detailRegion = document.getElementById('detail-region');
+  const categoryFilter = document.getElementById('search-category');
+  const pagination = document.getElementById('search-pagination');
+  const previousPageButton = document.getElementById('search-previous-page');
+  const nextPageButton = document.getElementById('search-next-page');
+  const pageInfo = document.getElementById('search-page-info');
 
   let activeCard = null;
-  let lastQuery = null;
+  let lastSearch = null;
+  let currentMeta = null;
+  let searchToken = 0;
+  let categoryLoadFailed = false;
   function showInputError(text) {
     errorBox.textContent = text;
     errorBox.hidden = text === '';
@@ -231,42 +239,98 @@ export function initializeBookSearch({ onEdit, onDelete } = {}) {
     resultsContainer.replaceChildren(grid);
   }
 
-  renderState(resultsContainer, 'Busca un libro por título o autor para consultarlo.');
+  function updatePagination(meta) {
+    currentMeta = meta;
+    const totalPages = meta?.totalPages ?? 0;
+    const page = meta?.page ?? 1;
+    pagination.hidden = totalPages <= 1;
+    pageInfo.textContent = totalPages === 0 ? 'Sin resultados' : `Página ${page} de ${totalPages}`;
+    previousPageButton.disabled = page <= 1;
+    nextPageButton.disabled = totalPages === 0 || page >= totalPages;
+  }
 
-    async function runSearch(query) {
+  void request('/api/categories')
+    .then(categories => {
+      const currentCategory = categoryFilter.value;
+      const options = [document.createElement('option')];
+      options[0].value = '';
+      options[0].textContent = 'Todas las categorías';
+      for (const category of categories) {
+        const option = document.createElement('option');
+        option.value = String(category.id);
+        option.textContent = category.name;
+        options.push(option);
+      }
+      categoryFilter.replaceChildren(...options);
+      categoryFilter.value = currentCategory;
+    })
+    .catch(() => {
+      categoryLoadFailed = true;
+      categoryFilter.disabled = true;
+      summaryContainer.replaceChildren(createElement('p', {
+        className: 'state state-error',
+        text: 'No se pudieron cargar las categorías. Recargue la página e inténtelo de nuevo.',
+      }));
+    });
+
+  renderState(resultsContainer, 'Busca por título o autor, o elige una categoría para consultar libros.');
+
+  async function runSearch({ query, categoryId, page }) {
+    const token = ++searchToken;
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    if (categoryId) params.set('categoryId', categoryId);
+    params.set('page', String(page));
+
     showInputError('');
     closeDetail();
     summaryContainer.replaceChildren();
     renderState(resultsContainer, 'Buscando libros...', 'loading');
+    updatePagination(null);
     setBusy(submitButton, true);
+    categoryFilter.disabled = true;
 
     try {
-      const books = (await request(`/api/books?q=${encodeURIComponent(query)}`)) ?? [];
-      lastQuery = query;
-      const total = books.length;
+      const { data: books, meta } = await request(`/api/admin/books?${params}`, { includeMeta: true });
+      if (token !== searchToken) return;
+      if (!meta || !Array.isArray(books)) throw new Error('Invalid paginated search response.');
+      lastSearch = { query, categoryId, page: meta.page };
+      const total = meta.total;
+      updatePagination(meta);
       summaryContainer.replaceChildren(createElement('p', {
         className: 'results-summary',
-        text: total === 1 ? '1 resultado' : `${total} resultados`,
+        text: total === 0
+          ? '0 resultados'
+          : `${total === 1 ? '1 resultado' : `${total} resultados`} · Página ${meta.page} de ${meta.totalPages}`,
       }));
       if (total === 0) {
-        renderState(resultsContainer, 'No se encontraron libros que coincidan con la búsqueda.');
+        renderState(resultsContainer, query || categoryId
+          ? 'No se encontraron libros con esos filtros.'
+          : 'Aún no hay libros registrados.');
       } else {
         renderResults(books);
       }
     } catch (error) {
+      if (token !== searchToken) return;
       summaryContainer.replaceChildren();
       if (error instanceof ApiError && error.status === 401) return;
       if (error instanceof ApiError && error.status === 400) {
-        showInputError(error.fields?.q ?? error.message);
-        renderState(resultsContainer, 'Busca un libro por título o autor para consultarlo.');
-        input.focus();
+        if (error.fields?.q) {
+          showInputError(error.fields.q);
+          input.focus();
+        }
+        renderState(resultsContainer, error.message, 'error');
       } else if (error instanceof ApiError && error.status === 429) {
         renderState(resultsContainer, 'Demasiadas solicitudes. Inténtelo de nuevo más tarde.', 'error');
       } else {
         renderState(resultsContainer, 'No se pudo conectar con el servidor.', 'error');
       }
     } finally {
-      setBusy(submitButton, false);
+      if (token === searchToken) {
+        setBusy(submitButton, false);
+        categoryFilter.disabled = categoryLoadFailed;
+        updatePagination(currentMeta);
+      }
     }
   }
 
@@ -274,24 +338,38 @@ export function initializeBookSearch({ onEdit, onDelete } = {}) {
     event.preventDefault();
     const query = input.value.trim();
 
-    if (query === '') {
-      showInputError('Escriba un título o autor para buscar.');
-      input.focus();
-      return;
-    }
     if (Array.from(query).length > MAX_SEARCH_LENGTH) {
       showInputError(`El texto de búsqueda no puede superar ${MAX_SEARCH_LENGTH} caracteres.`);
       input.focus();
       return;
     }
 
-    await runSearch(query);
+    await runSearch({ query, categoryId: categoryFilter.value, page: 1 });
+  });
+
+  categoryFilter.addEventListener('change', () => {
+    void runSearch({ query: input.value.trim(), categoryId: categoryFilter.value, page: 1 });
+  });
+  previousPageButton.addEventListener('click', () => {
+    if (lastSearch && currentMeta?.page > 1) {
+      void runSearch({ ...lastSearch, page: currentMeta.page - 1 });
+    }
+  });
+  nextPageButton.addEventListener('click', () => {
+    if (lastSearch && currentMeta && currentMeta.page < currentMeta.totalPages) {
+      void runSearch({ ...lastSearch, page: currentMeta.page + 1 });
+    }
   });
 
   return {
-    /** HU-004 (D-25): repite la última búsqueda para que la lista refleje la base de datos. */
+    showAll() {
+      input.value = '';
+      categoryFilter.value = '';
+      return runSearch({ query: '', categoryId: '', page: 1 });
+    },
+    /** HU-004 (D-25): repite los filtros y la página para reflejar la base de datos. */
     repeatLastSearch() {
-      return lastQuery === null ? Promise.resolve() : runSearch(lastQuery);
+      return lastSearch === null ? Promise.resolve() : runSearch(lastSearch);
     },
     /** HU-004: devuelve el foco al botón "Editar" de esa tarjeta, si sigue en la lista. */
     focusEditButton(bookId) {

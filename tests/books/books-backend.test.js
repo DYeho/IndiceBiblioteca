@@ -7,8 +7,29 @@ import { normalizeText } from '../../src/utils/normalize-text.js';
 
 function createMemoryRepository() {
   const books = [];
+  const categories = [{ id: 1, name: 'Literatura', normalizedName: 'literatura' }];
   return {
     books,
+    findCategoryById(id) {
+      return categories.find(category => category.id === id) ?? null;
+    },
+    findCategoryByNormalizedName(normalizedName) {
+      return categories.find(category => category.normalizedName === normalizedName) ?? null;
+    },
+    listCategories() {
+      return categories;
+    },
+    searchAdmin() {
+      return [];
+    },
+    countAdminSearch() {
+      return 0;
+    },
+    insertCategory(category) {
+      const saved = { id: categories.length + 1, ...category };
+      categories.push(saved);
+      return saved;
+    },
     findByNormalizedKey(titleNormalized, authorNormalized) {
       return books.find((book) => book.titleNormalized === titleNormalized &&
         book.authorNormalized === authorNormalized) ?? null;
@@ -17,6 +38,7 @@ function createMemoryRepository() {
       const record = {
         ...book,
         id: books.length + 1,
+        category: categories.find(category => category.id === book.categoryId).name,
         shelfLabel: null,
         createdAt: '2026-11-18T12:00:00.000Z',
         updatedAt: '2026-11-18T12:00:00.000Z',
@@ -37,6 +59,7 @@ const validBook = {
   author: 'Gabriel García Márquez',
   description: 'Novela',
   quantity: 5,
+  categoryId: 1,
 };
 
 function expectError(action, code, field) {
@@ -54,11 +77,13 @@ test('registers a book and trims text without changing internal spaces', () => {
     author: '  Gabriel García Márquez  ',
     description: '  Novela  ',
     quantity: 1,
+    categoryId: 1,
   });
   assert.equal(book.title, 'Cien  años de soledad');
   assert.equal(book.author, 'Gabriel García Márquez');
   assert.equal(book.description, 'Novela');
   assert.equal(book.quantity, 1);
+  assert.equal(book.category, 'Literatura');
   assert.equal(book.shelfLabel, null);
   assert.equal(repository.books[0].titleNormalized, 'cien anos de soledad');
   assert.equal(repository.books[0].authorNormalized, 'gabriel garcia marquez');
@@ -78,7 +103,7 @@ test('reports all missing required fields in one validation error', () => {
   const { service, repository } = createService();
   assert.throws(() => service.registerBook({ title: ' ', author: '', quantity: undefined }), (error) => {
     assert.equal(error.code, 'VALIDATION_ERROR');
-    assert.deepEqual(Object.keys(error.fields).sort(), ['author', 'quantity', 'title']);
+    assert.deepEqual(Object.keys(error.fields).sort(), ['author', 'categoryId', 'quantity', 'title']);
     return true;
   });
   assert.equal(repository.books.length, 0);
@@ -142,6 +167,12 @@ test('allows the same title with a different author and vice versa', () => {
 test('translates a unique constraint violation into a conflict', () => {
   const repository = {
     findByNormalizedKey: () => null,
+    findCategoryById: () => ({ id: 1 }),
+    findCategoryByNormalizedName: () => null,
+    listCategories: () => [],
+    searchAdmin: () => [],
+    countAdminSearch: () => 0,
+    insertCategory: () => null,
     insert: () => { const error = new Error('UNIQUE constraint failed'); error.code = 'SQLITE_CONSTRAINT_UNIQUE'; throw error; },
   };
   const { service } = createService(repository);
@@ -151,7 +182,16 @@ test('translates a unique constraint violation into a conflict', () => {
 test('does not disguise unrelated database errors as conflicts', () => {
   const error = new Error('Database is unavailable');
   error.code = 'SQLITE_BUSY';
-  const repository = { findByNormalizedKey: () => null, insert: () => { throw error; } };
+  const repository = {
+    findByNormalizedKey: () => null,
+    findCategoryById: () => ({ id: 1 }),
+    findCategoryByNormalizedName: () => null,
+    listCategories: () => [],
+    searchAdmin: () => [],
+    countAdminSearch: () => 0,
+    insertCategory: () => null,
+    insert: () => { throw error; },
+  };
   const { service } = createService(repository);
   assert.throws(() => service.registerBook(validBook), (actual) => actual === error);
 });

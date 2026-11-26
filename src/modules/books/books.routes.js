@@ -41,6 +41,21 @@ export function registerBookSearchRoutes(router, { controller }) {
   return router;
 }
 
+export function registerAdminBookSearchRoutes(router, { requireAdmin, controller }) {
+  if (
+    !router ||
+    typeof router.get !== 'function' ||
+    typeof requireAdmin !== 'function' ||
+    !controller ||
+    typeof controller.searchAdmin !== 'function'
+  ) {
+    throw new TypeError('An admin router, guard and search controller are required.');
+  }
+
+  router.get('/', requireAdmin, controller.searchAdmin);
+  return router;
+}
+
 // HU-003: asignación de estante de un libro (solo Administración).
 export function registerBookShelfRoutes(router, { requireAdmin, controller }) {
   if (
